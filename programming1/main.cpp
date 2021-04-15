@@ -141,7 +141,12 @@ void solve_bfs(string i_s, string g_s, string output)
         cout << "depth: " << itr->first.depth << " and " << itr->second << endl << "--"<< endl;
     }
 
-
+    auto itr = map.find({3,1,0,2,-1,2});
+    if( itr != map.end() ) {
+        cout << "there is" << endl;
+    } else {
+        cout << "there is not" << endl;
+    }
 
 
 }
