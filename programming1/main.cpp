@@ -1,4 +1,13 @@
-#include <bits/stdc++.h>
+//#include <bits/stdc++.h>
+#include<iostream>
+#include<string>
+#include<sstream>
+#include<fstream>
+#include<cstring>
+#include<vector>
+#include<unordered_map>
+#include<queue>
+
 using namespace std;
 
 #ifndef DEBUG
@@ -11,66 +20,15 @@ using namespace std;
 #define FOR(i,b,n) for(int i=(b);i<(n);++i)
 
 typedef long long ll;
+typedef pair<int,string> pis;
 
 const int M=2e5+5;
 const int INF=2e9;
 const int MOD=1e9+7;
 
-/* to generate own seed value */
-template<typename T>
-void hash_combine(size_t & seed, T const& v){
-    std::hash<T> primitive_type_hash;
-    seed ^= primitive_type_hash(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-}
-/*
-    I assumed that
-    boat = 1 for right side,
-    boat = -1 for left side
-******************************/
-class Node{
-    public:
-    int r_chickens;
-    int r_wolves;
-    int l_chickens;
-    int l_wolves;
-    int boat;
-    /* this depth is for priprity queue */
-    int depth;
 
 
-
-};
-bool operator==(const Node &left, const Node &right){
-    return  left.r_chickens == right.r_chickens and
-            left.r_wolves == right.r_wolves and
-            left.boat == right.boat;
-}
-
-namespace std{
-    template<>
-    struct hash<Node>{
-    public:
-        size_t operator()(const Node &data)const {
-
-            std::size_t seed = 0;
-            hash_combine(seed, data.r_chickens);
-            hash_combine(seed, data.r_wolves);
-            hash_combine(seed, data.boat);
-            return seed;
-        }
-
-    };
-}
-
-/* overloaded for priority queue with Node class */
-bool operator> (const Node &node1, const Node &node2){
-    return node1.depth > node2.depth;
-};
-bool operator< (const Node &node1, const Node &node2){
-    return node1.depth < node2.depth;
-};
-
-void read_file(string input, vector<vector<int>> &vv)
+void read_file(string input, vector<int> &v)
 {
     ifstream ifs(input);
     if(ifs.fail()){
@@ -78,16 +36,16 @@ void read_file(string input, vector<vector<int>> &vv)
         exit(2);
     }
     char c;
-    for(int i = 0; i < 2; ++i){
-        for(int j = 0; j < 3; ++j){
-            ifs >> vv[i][j];
-            if(j!=2){
-                ifs >> c;
-            }
+    for(int i = 0; i < 6; ++i){
+        ifs >> v[i];
+        if(i!=5){
+            ifs >> c;
         }
     }
     ifs.close();
 }
+
+
 
 /*need to print out the number of search nodes expanded*/
 void write_file(string output, int num_node, bool solved)
@@ -102,46 +60,70 @@ void write_file(string output, int num_node, bool solved)
     ofs.close();
 }
 
+
+string vector_to_string(vector<int> v)
+{
+    string tmp = to_string(v[0])+' '+to_string(v[1])+' '+to_string(v[2])+' '+to_string(v[3])+' '+to_string(v[4])+' '+to_string(v[5]);
+    return tmp;
+}
+
+vector<int> string_to_vector(const string &str, char sep)
+{
+    vector<int> v;
+    stringstream ss(str);
+    string buffer;
+    while(getline(ss, buffer, sep) ) {
+        v.push_back(stoi(buffer));
+    }
+    return v;
+}
+
 void solve_bfs(string i_s, string g_s, string output)
 {
-    priority_queue<Node, vector<Node>, greater<Node>> pq;
-    unordered_map<Node, int> map;
+    priority_queue<pair<int,string>> pq;
+    unordered_map<string, int> map;
+    //unordered_map<Node, int> map;
 
-    vector<vector<int>> initial_state(2,vector<int>(3));
-    vector<vector<int>> goal_state(2,vector<int>(3));
-
+    vector<int> initial_state(6);
+    vector<int> goal_state(6);
 
     read_file(i_s, initial_state);
     read_file(g_s, goal_state);
 
-    /* c1 w1 c2 w2 b1-b2 depth*/
-    //map[ {initial_state[0][0],initial_state[0][1],initial_state[1][0],initial_state[1][1], (initial_state[0][2]-initial_state[1][2]) , 0} ] = 0;
-    //pq.push({initial_state[0][0],initial_state[0][1],initial_state[1][0],initial_state[1][1], (initial_state[0][2]-initial_state[1][2]) , 0});
+    string goal = vector_to_string(goal_state);
+
 
     /* debug */
-    map[{3,1,0,2,-1,2}] = 2;
-    map[{0,0,3,3,1,0}] = 0;
-    map[{3,3,0,0,-1,1}] = 1;
 
-    pq.push({3,1,0,2,-1,2});
-    pq.push({0,0,3,3,1,0});
-    pq.push({3,3,0,0,-1,1});
+    pq.push(pis(2,"3 1 1 0 2 0"));
+    pq.push(pis(0,"3 3 1 0 0 0"));
+    pq.push(pis(1,"3 2 0 0 1 1"));
     while(!pq.empty()){
-        cout << "depth: " << pq.top().depth << endl <<endl;
-        cout << "right side: " << pq.top().r_chickens << " : " << pq.top().r_wolves << endl;
-        cout << "left side: " << pq.top().l_chickens << " : " << pq.top().l_wolves << endl;
-        cout << pq.top().boat << endl << "--"<< endl;
+
+        cout << "depth: " << pq.top().first << endl <<endl;
+        cout << "state: " << pq.top().second << endl;
+
+        vector<int> v = string_to_vector(pq.top().second, ' ');
+
+        cout << "test s_to_v function" << endl;
+        for(int num: v){
+            cout << num << ' ';
+        }
+        cout<< endl;
+
+        map[pq.top().second] = pq.top().first;
         pq.pop();
+
+        cout << "-------------------" <<endl;
     }
     cout << "------------map-----------------" << endl;
-    for(auto itr = map.begin(); itr != map.end(); ++itr) {
-        cout << "right side: " << itr->first.r_chickens << " : " << itr->first.r_wolves << endl;
-        cout << "left side: " << itr->first.l_chickens << " : " << itr->first.l_wolves << endl;
-        cout << itr->first.boat << endl << endl;
-        cout << "depth: " << itr->first.depth << " and " << itr->second << endl << "--"<< endl;
+    for(auto itr = map.begin(); itr != map.end(); ++itr){
+        cout << "map value: " << itr->first << endl;
+        cout << "depth: " << itr->second <<endl<<"-----------" <<endl;
     }
 
-    auto itr = map.find({3,1,0,2,-1,2});
+    cout << "\n--------find-----------" <<endl;
+    auto itr = map.find("3 1 1 0 2 0");
     if( itr != map.end() ) {
         cout << "there is" << endl;
     } else {
@@ -149,34 +131,20 @@ void solve_bfs(string i_s, string g_s, string output)
     }
 
 
+
 }
 
 void solve_dfc(string i_s, string g_s, string output)
 {
-    priority_queue<Node> pq;
-    unordered_map<Node, int> map;
 
-    vector<vector<int>> initial_state(2,vector<int>(3));
-    vector<vector<int>> goal_state(2,vector<int>(3));
-
-    read_file(i_s, initial_state);
-    read_file(g_s, goal_state);
 }
 void solve_iddfs(string i_s, string g_s, string output)
 {
-    vector<vector<int>> initial_state(2,vector<int>(3));
-    vector<vector<int>> goal_state(2,vector<int>(3));
 
-    read_file(i_s, initial_state);
-    read_file(g_s, goal_state);
 }
 void solve_astar(string i_s, string g_s, string output)
 {
-    vector<vector<int>> initial_state(2,vector<int>(3));
-    vector<vector<int>> goal_state(2,vector<int>(3));
 
-    read_file(i_s, initial_state);
-    read_file(g_s, goal_state);
 }
 
 
