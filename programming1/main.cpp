@@ -127,16 +127,16 @@ void solve_bfs(string i_s, string g_s, string output)
     pq.push({0,0,3,3,1,0});
     pq.push({3,3,0,0,-1,1});
     while(!pq.empty()){
-        cout << "depth: " << pq.top().depth << endl;
-        cout << pq.top().r_chickens << " : " << pq.top().r_wolves << endl;
-        cout << pq.top().l_chickens << " : " << pq.top().l_wolves << endl;
+        cout << "depth: " << pq.top().depth << endl <<endl;
+        cout << "right side: " << pq.top().r_chickens << " : " << pq.top().r_wolves << endl;
+        cout << "left side: " << pq.top().l_chickens << " : " << pq.top().l_wolves << endl;
         cout << pq.top().boat << endl << "--"<< endl;
         pq.pop();
     }
     cout << "------------map-----------------" << endl;
     for(auto itr = map.begin(); itr != map.end(); ++itr) {
-        cout << itr->first.r_chickens << " : " << itr->first.r_wolves << endl;
-        cout << itr->first.l_chickens << " : " << itr->first.l_wolves << endl;
+        cout << "right side: " << itr->first.r_chickens << " : " << itr->first.r_wolves << endl;
+        cout << "left side: " << itr->first.l_chickens << " : " << itr->first.l_wolves << endl;
         cout << itr->first.boat << endl << endl;
         cout << "depth: " << itr->first.depth << " and " << itr->second << endl << "--"<< endl;
     }
@@ -148,6 +148,9 @@ void solve_bfs(string i_s, string g_s, string output)
 
 void solve_dfc(string i_s, string g_s, string output)
 {
+    priority_queue<Node> pq;
+    unordered_map<Node, int> map;
+
     vector<vector<int>> initial_state(2,vector<int>(3));
     vector<vector<int>> goal_state(2,vector<int>(3));
 
