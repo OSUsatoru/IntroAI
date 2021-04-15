@@ -25,7 +25,7 @@ void hash_combine(size_t & seed, T const& v){
 /*
     I assumed that
     boat = 1 for right side,
-    boat = 0 for left side
+    boat = -1 for left side
 ******************************/
 class Node{
     public:
@@ -36,12 +36,15 @@ class Node{
     int boat;
     /* this depth is for priprity queue */
     int depth;
-    Node(){}
-    Node(int rc, int rw, int lc, int lw, int b, int d):r_chickens(rc),r_wolves(rw),l_chickens(lc),l_wolves(lw),boat(b),depth(d){}
 
-    bool operator==(const Node &left) const {return this->r_chickens == left.r_chickens and this->r_wolves == left.r_wolves and this->boat == left.boat; }
+
 
 };
+bool operator==(const Node &left, const Node &right){
+    return  left.r_chickens == right.r_chickens and
+            left.r_wolves == right.r_wolves and
+            left.boat == right.boat;
+}
 
 namespace std{
     template<>
@@ -60,8 +63,8 @@ namespace std{
 }
 
 /* overloaded for priority queue with Node class */
-bool operator< (const Node &node1, const Node &node2){
-    return node1.depth < node2.depth;
+bool operator> (const Node &node1, const Node &node2){
+    return node1.depth > node2.depth;
 };
 
 void read_file(string input, vector<vector<int>> &vv)
@@ -98,16 +101,42 @@ void write_file(string output, int num_node, bool solved)
 
 void solve_bfs(string i_s, string g_s, string output)
 {
-    priority_queue<Node> pq;
-    unordered_map<Node, int> mp;
+    priority_queue<Node, vector<Node>, greater<Node>> pq;
+    unordered_map<Node, int> map;
 
     vector<vector<int>> initial_state(2,vector<int>(3));
     vector<vector<int>> goal_state(2,vector<int>(3));
 
 
-
     read_file(i_s, initial_state);
     read_file(g_s, goal_state);
+
+    /* c1 w1 c2 w2 b1-b2 depth*/
+    //map[ {initial_state[0][0],initial_state[0][1],initial_state[1][0],initial_state[1][1], (initial_state[0][2]-initial_state[1][2]) , 0} ] = 0;
+    //pq.push({initial_state[0][0],initial_state[0][1],initial_state[1][0],initial_state[1][1], (initial_state[0][2]-initial_state[1][2]) , 0});
+
+    /* debug */
+    map[{3,1,0,2,-1,2}] = 2;
+    map[{0,0,3,3,1,0}] = 0;
+    map[{3,3,0,0,-1,1}] = 1;
+
+    pq.push({3,1,0,2,-1,2});
+    pq.push({0,0,3,3,1,0});
+    pq.push({3,3,0,0,-1,1});
+    while(!pq.empty()){
+        cout << "depth: " << pq.top().depth << endl;
+        cout << pq.top().r_chickens << " : " << pq.top().r_wolves << endl;
+        cout << pq.top().l_chickens << " : " << pq.top().l_wolves << endl;
+        cout << pq.top().boat << endl << "--"<< endl;
+        pq.pop();
+    }
+    cout << "------------map-----------------" << endl;
+    for(auto itr = map.begin(); itr != map.end(); ++itr) {
+        cout << itr->first.r_chickens << " : " << itr->first.r_wolves << endl;
+        cout << itr->first.l_chickens << " : " << itr->first.l_wolves << endl;
+        cout << itr->first.boat << endl << endl;
+        cout << "depth: " << itr->first.depth << " and " << itr->second << endl << "--"<< endl;
+    }
 
 
 
