@@ -66,6 +66,9 @@ namespace std{
 bool operator> (const Node &node1, const Node &node2){
     return node1.depth > node2.depth;
 };
+bool operator< (const Node &node1, const Node &node2){
+    return node1.depth < node2.depth;
+};
 
 void read_file(string input, vector<vector<int>> &vv)
 {
