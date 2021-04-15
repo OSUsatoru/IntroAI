@@ -16,16 +16,52 @@ const int M=2e5+5;
 const int INF=2e9;
 const int MOD=1e9+7;
 
-typedef pair<int,int> pii;
-typedef pair<int,pair<int,int>> pipii;
+/* to generate own seed value */
+template<typename T>
+void hash_combine(size_t & seed, T const& v){
+    std::hash<T> primitive_type_hash;
+    seed ^= primitive_type_hash(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+}
+/*
+    I assumed that
+    boat = 1 for right side,
+    boat = 0 for left side
+******************************/
+class Node{
+    public:
+    int r_chickens;
+    int r_wolves;
+    int l_chickens;
+    int l_wolves;
+    int boat;
+    /* this depth is for priprity queue */
+    int depth;
+    Node(){}
+    Node(int rc, int rw, int lc, int lw, int b, int d):r_chickens(rc),r_wolves(rw),l_chickens(lc),l_wolves(lw),boat(b),depth(d){}
 
-/* for priority queue */
-struct myComp {
-    constexpr bool operator()( pair<int, pair<int, int>> const& a, pair<int, pair<int, int>> const& b)
-        const noexcept
-    {
-        return a.first > b.first;
-    }
+    bool operator==(const Node &left) const {return this->r_chickens == left.r_chickens and this->r_wolves == left.r_wolves and this->boat == left.boat; }
+
+};
+
+namespace std{
+    template<>
+    struct hash<Node>{
+    public:
+        size_t operator()(const Node &data)const {
+
+            std::size_t seed = 0;
+            hash_combine(seed, data.r_chickens);
+            hash_combine(seed, data.r_wolves);
+            hash_combine(seed, data.boat);
+            return seed;
+        }
+
+    };
+}
+
+/* overloaded for priority queue with Node class */
+bool operator< (const Node &node1, const Node &node2){
+    return node1.depth < node2.depth;
 };
 
 void read_file(string input, vector<vector<int>> &vv)
@@ -62,21 +98,47 @@ void write_file(string output, int num_node, bool solved)
 
 void solve_bfs(string i_s, string g_s, string output)
 {
+    priority_queue<Node> pq;
+    unordered_map<Node, int> mp;
+
+    vector<vector<int>> initial_state(2,vector<int>(3));
+    vector<vector<int>> goal_state(2,vector<int>(3));
+
+
+
+    read_file(i_s, initial_state);
+    read_file(g_s, goal_state);
+
+
+
+
+}
+
+void solve_dfc(string i_s, string g_s, string output)
+{
     vector<vector<int>> initial_state(2,vector<int>(3));
     vector<vector<int>> goal_state(2,vector<int>(3));
 
     read_file(i_s, initial_state);
     read_file(g_s, goal_state);
-    write_file(output, 0, false);
-
-
-
 }
-/*
-void solve_dfc(string i_s, string g_s, string output);
-void solve_iddfs(string i_s, string g_s, string output);
-void solve_astar(string i_s, string g_s, string output);
-*/
+void solve_iddfs(string i_s, string g_s, string output)
+{
+    vector<vector<int>> initial_state(2,vector<int>(3));
+    vector<vector<int>> goal_state(2,vector<int>(3));
+
+    read_file(i_s, initial_state);
+    read_file(g_s, goal_state);
+}
+void solve_astar(string i_s, string g_s, string output)
+{
+    vector<vector<int>> initial_state(2,vector<int>(3));
+    vector<vector<int>> goal_state(2,vector<int>(3));
+
+    read_file(i_s, initial_state);
+    read_file(g_s, goal_state);
+}
+
 
 /*
     < initial state file > < goal state file > < mode > < output file >
@@ -93,11 +155,11 @@ int main(int argc, char *argv[])
     if(strcmp(argv[3], "bfs") == 0){
         solve_bfs(argv[1], argv[2], argv[4]);
     }else if(strcmp(argv[3], "dfs") == 0){
-        //solve_dfc(argv[1], argv[2], argv[4]);
+        solve_dfc(argv[1], argv[2], argv[4]);
     }else if(strcmp(argv[3], "iddfs") == 0){
-        //solve_iddfs(argv[1], argv[2], argv[4]);
+        solve_iddfs(argv[1], argv[2], argv[4]);
     }else if(strcmp(argv[3], "astar") == 0){
-        //solve_astar(argv[1], argv[2], argv[4]);
+        solve_astar(argv[1], argv[2], argv[4]);
     }else{
         fprintf(stderr, "invalid mode\n");
         return EXIT_FAILURE;
