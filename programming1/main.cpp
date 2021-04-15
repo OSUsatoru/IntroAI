@@ -27,6 +27,14 @@ const int INF=2e9;
 const int MOD=1e9+7;
 
 
+struct myComp {
+    constexpr bool operator()( pair<int, string> const& a, pair<int, string> const& b)
+        const noexcept
+    {
+        return a.first > b.first;
+    }
+};
+
 
 void read_file(string input, vector<int> &v)
 {
@@ -38,14 +46,12 @@ void read_file(string input, vector<int> &v)
     char c;
     for(int i = 0; i < 6; ++i){
         ifs >> v[i];
-        if(i!=5){
+        if(i!=2){
             ifs >> c;
         }
     }
     ifs.close();
 }
-
-
 
 /*need to print out the number of search nodes expanded*/
 void write_file(string output, int num_node, bool solved)
@@ -61,10 +67,9 @@ void write_file(string output, int num_node, bool solved)
 }
 
 
-string vector_to_string(vector<int> v)
+void vector_to_string(vector<int> v, string &tmp)
 {
-    string tmp = to_string(v[0])+' '+to_string(v[1])+' '+to_string(v[2])+' '+to_string(v[3])+' '+to_string(v[4])+' '+to_string(v[5]);
-    return tmp;
+    tmp = to_string(v[0])+' '+to_string(v[1])+' '+to_string(v[2])+' '+to_string(v[3])+' '+to_string(v[4])+' '+to_string(v[5]);
 }
 
 vector<int> string_to_vector(const string &str, char sep)
@@ -80,7 +85,7 @@ vector<int> string_to_vector(const string &str, char sep)
 
 void solve_bfs(string i_s, string g_s, string output)
 {
-    priority_queue<pair<int,string>> pq;
+    priority_queue<pis, vector<pis>, myComp > pq;
     unordered_map<string, int> map;
     //unordered_map<Node, int> map;
 
@@ -90,11 +95,15 @@ void solve_bfs(string i_s, string g_s, string output)
     read_file(i_s, initial_state);
     read_file(g_s, goal_state);
 
-    string goal = vector_to_string(goal_state);
+    string initial, goal;
+    vector_to_string(initial_state, initial);
+    vector_to_string(goal_state, goal);
 
 
     /* debug */
-
+    cout << "initial: " << initial <<endl;
+    cout << "goal: " << goal <<endl;
+    cout << "----------------" <<endl;
     pq.push(pis(2,"3 1 1 0 2 0"));
     pq.push(pis(0,"3 3 1 0 0 0"));
     pq.push(pis(1,"3 2 0 0 1 1"));
