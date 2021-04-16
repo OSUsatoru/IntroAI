@@ -359,13 +359,12 @@ void solve_bfs(string i_s, string g_s, string output)
 
         cout << "path: " << current_state << endl;
         cout << "depth: " << current_depth<<endl;
-        ++num_explored;
-
         /* if the node contains a goal state, then return the corresponding solution */
         if(current_state == goal){
             found = true;
             break;
         }
+        ++num_explored;
 
         /* expand the chosen node, adding the resulting nodes to the frontier
            only if not in the frontier or explored set
@@ -424,13 +423,15 @@ void solve_dfs(string i_s, string g_s, string output)
 
         cout << "path: " << current_state << endl;
         cout << "depth: " << current_depth<<endl;
-        ++num_explored;
+
 
         /* if the node contains a goal state, then return the corresponding solution */
         if(current_state == goal){
             found = true;
             break;
         }
+
+        ++num_explored;
 
         /* expand the chosen node, adding the resulting nodes to the frontier
            only if not in the frontier or explored set
