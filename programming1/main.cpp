@@ -106,6 +106,113 @@ bool check_move(vector<int> &node)
 
     return false;
 }
+void expand(vector<int> &current_node, priority_queue<pis> &pq, int depth, unordered_map<string, string> &mp)
+{
+    vector<int> next_node(6);
+    string next_node_string,current_node_string;
+    vector_to_string(current_node,current_node_string);
+
+    int index1=0,index2=3;
+    /* check the boat possition */
+    /* boat is right side, we need to move index of 3,4*/
+    if(current_node[2] == 0){
+        index1=3;
+        index2=0;
+    }
+
+    /*c1*/
+    next_node[index1]=current_node[index1]-1;
+    next_node[index1+1]=current_node[index1+1];
+
+    next_node[index2]=current_node[index2]+1;
+    next_node[index2+1]=current_node[index2+1];
+
+    next_node[2]=current_node[5];
+    next_node[5]=current_node[2];
+
+    if(check_move(next_node)){
+        vector_to_string(next_node, next_node_string);
+        auto itr = mp.find(next_node_string);
+        if( itr == mp.end() ) {
+            pq.push(pis(depth+1, next_node_string));
+            mp[next_node_string] = current_node_string;
+        }
+    }
+
+    /*c2*/
+    next_node[index1]=current_node[index1]-2;
+    next_node[index1+1]=current_node[index1+1];
+
+    next_node[index2]=current_node[index2]+2;
+    next_node[index2+1]=current_node[index2+1];
+
+    next_node[2]=current_node[5];
+    next_node[5]=current_node[2];
+
+    if(check_move(next_node)){
+        vector_to_string(next_node, next_node_string);
+        auto itr = mp.find(next_node_string);
+        if( itr == mp.end() ) {
+            pq.push(pis(depth+1, next_node_string));
+            mp[next_node_string] = current_node_string;
+        }
+    }
+
+    /*w1*/
+    next_node[index1]=current_node[index1];
+    next_node[index1+1]=current_node[index1+1]-1;
+
+    next_node[index2]=current_node[index2];
+    next_node[index2+1]=current_node[index2+1]+1;
+
+    next_node[2]=current_node[5];
+    next_node[5]=current_node[2];
+
+    if(check_move(next_node)){
+        vector_to_string(next_node, next_node_string);
+        auto itr = mp.find(next_node_string);
+        if( itr == mp.end() ) {
+            pq.push(pis(depth+1, next_node_string));
+            mp[next_node_string] = current_node_string;
+        }
+    }
+
+    /*w1c1*/
+    next_node[index1]=current_node[index1]-1;
+    next_node[index1+1]=current_node[index1+1]-1;
+
+    next_node[index2]=current_node[index2]+1;
+    next_node[index2+1]=current_node[index2+1]+1;
+
+    next_node[2]=current_node[5];
+    next_node[5]=current_node[2];
+    if(check_move(next_node)){
+        vector_to_string(next_node, next_node_string);
+        auto itr = mp.find(next_node_string);
+        if( itr == mp.end() ) {
+            pq.push(pis(depth+1, next_node_string));
+            mp[next_node_string] = current_node_string;
+        }
+    }
+    /*w2*/
+    next_node[index1]=current_node[index1];
+    next_node[index1+1]=current_node[index1+1]-2;
+    next_node[index2]=current_node[index2];
+    next_node[index2+1]=current_node[index2+1]+2;
+
+    next_node[2]=current_node[5];
+    next_node[5]=current_node[2];
+
+    if(check_move(next_node)){
+        vector_to_string(next_node, next_node_string);
+        auto itr = mp.find(next_node_string);
+        if( itr == mp.end() ) {
+            pq.push(pis(depth+1, next_node_string));
+            mp[next_node_string] = current_node_string;
+        }
+    }
+
+}
 void expand(vector<int> &current_node, priority_queue<pis, vector<pis>, myComp > &pq, int depth, unordered_map<string, string> &mp)
 {
     vector<int> next_node(6);
@@ -279,8 +386,67 @@ void solve_bfs(string i_s, string g_s, string output)
 
 }
 
-void solve_dfc(string i_s, string g_s, string output)
+void solve_dfs(string i_s, string g_s, string output)
 {
+    priority_queue<pis> pq;
+    unordered_map<string, string> mp;
+
+    int num_explored = 0, current_depth;
+    string current_state;
+    bool found = false;
+
+    vector<int> initial_state(6);
+    vector<int> goal_state(6);
+
+    read_file(i_s, initial_state);
+    read_file(g_s, goal_state);
+
+    string initial, goal;
+    vector_to_string(initial_state, initial);
+    vector_to_string(goal_state, goal);
+
+    /* push the initial_state into priority queue and hash table */
+    pq.push(pis(0,initial));
+    mp[initial] = "0";
+
+    /* loop do */
+    while(1){
+        /* if the frontier is empty, then return failure  */
+        if(pq.empty()){
+            found = false;
+            break;
+        }
+
+        /* choose a leaf node and remove it from the frontier */
+        current_state = pq.top().second;
+        current_depth = pq.top().first;
+        pq.pop();
+
+        cout << "path: " << current_state << endl;
+        cout << "depth: " << current_depth<<endl;
+        ++num_explored;
+
+        /* if the node contains a goal state, then return the corresponding solution */
+        if(current_state == goal){
+            found = true;
+            break;
+        }
+
+        /* expand the chosen node, adding the resulting nodes to the frontier
+           only if not in the frontier or explored set
+        ****************************************************************************/
+        vector<int> tmp = string_to_vector(current_state, ' ');
+        expand(tmp,pq,current_depth,mp);
+
+    }
+
+    if(found){
+        cout << num_explored;
+    }else{
+
+    }
+
+
 
 }
 void solve_iddfs(string i_s, string g_s, string output)
@@ -380,7 +546,7 @@ int main(int argc, char *argv[])
         //test(argv[1], argv[2]);
         solve_bfs(argv[1], argv[2], argv[4]);
     }else if(strcmp(argv[3], "dfs") == 0){
-        solve_dfc(argv[1], argv[2], argv[4]);
+        solve_dfs(argv[1], argv[2], argv[4]);
     }else if(strcmp(argv[3], "iddfs") == 0){
         solve_iddfs(argv[1], argv[2], argv[4]);
     }else if(strcmp(argv[3], "astar") == 0){
