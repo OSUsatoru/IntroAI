@@ -7,7 +7,6 @@
 #include<vector>
 #include<unordered_map>
 #include<queue>
-#include<stack>
 
 using namespace std;
 
@@ -21,10 +20,28 @@ using namespace std;
 #define FOR(i,b,n) for(int i=(b);i<(n);++i)
 
 typedef long long ll;
+typedef pair<int,string> pis;
 
 const int M=2e5+5;
 const int INF=2e9;
 const int MOD=1e9+7;
+
+
+struct myBFSComp {
+    constexpr bool operator()( pair<int, string> const& a, pair<int, string> const& b)
+        const noexcept
+    {
+        return a.first > b.first;
+    }
+};
+
+struct myDFSComp {
+    constexpr bool operator()( pair<int, string> const& a, pair<int, string> const& b)
+        const noexcept
+    {
+        return a.first <= b.first;
+    }
+};
 
 
 void read_file(string input, vector<int> &v)
@@ -97,114 +114,7 @@ bool check_move(vector<int> &node)
 
     return false;
 }
-void expand_BFS(vector<int> &current_node, queue<string> &que, unordered_map<string, string> &mp)
-{
-    vector<int> next_node(6);
-    string next_node_string, current_node_string;
-    vector_to_string(current_node,current_node_string);
-
-    int index1=0,index2=3;
-    /* check the boat possition */
-    /* boat is right side, we need to move index of 3,4*/
-    if(current_node[2] == 0){
-        index1=3;
-        index2=0;
-    }
-
-    /*c1*/
-    next_node[index1]=current_node[index1]-1;
-    next_node[index1+1]=current_node[index1+1];
-
-    next_node[index2]=current_node[index2]+1;
-    next_node[index2+1]=current_node[index2+1];
-
-    next_node[2]=current_node[5];
-    next_node[5]=current_node[2];
-
-    if(check_move(next_node)){
-        vector_to_string(next_node, next_node_string);
-        auto itr = mp.find(next_node_string);
-        if( itr == mp.end() ) {
-            que.push(next_node_string);
-            mp[next_node_string] = current_node_string;
-        }
-    }
-
-    /*c2*/
-    next_node[index1]=current_node[index1]-2;
-    next_node[index1+1]=current_node[index1+1];
-
-    next_node[index2]=current_node[index2]+2;
-    next_node[index2+1]=current_node[index2+1];
-
-    next_node[2]=current_node[5];
-    next_node[5]=current_node[2];
-
-    if(check_move(next_node)){
-        vector_to_string(next_node, next_node_string);
-        auto itr = mp.find(next_node_string);
-        if( itr == mp.end() ) {
-            que.push(next_node_string);
-            mp[next_node_string] = current_node_string;
-        }
-    }
-
-    /*w1*/
-    next_node[index1]=current_node[index1];
-    next_node[index1+1]=current_node[index1+1]-1;
-
-    next_node[index2]=current_node[index2];
-    next_node[index2+1]=current_node[index2+1]+1;
-
-    next_node[2]=current_node[5];
-    next_node[5]=current_node[2];
-
-    if(check_move(next_node)){
-        vector_to_string(next_node, next_node_string);
-        auto itr = mp.find(next_node_string);
-        if( itr == mp.end() ) {
-            que.push(next_node_string);
-            mp[next_node_string] = current_node_string;
-        }
-    }
-
-    /*w1c1*/
-    next_node[index1]=current_node[index1]-1;
-    next_node[index1+1]=current_node[index1+1]-1;
-
-    next_node[index2]=current_node[index2]+1;
-    next_node[index2+1]=current_node[index2+1]+1;
-
-    next_node[2]=current_node[5];
-    next_node[5]=current_node[2];
-    if(check_move(next_node)){
-        vector_to_string(next_node, next_node_string);
-        auto itr = mp.find(next_node_string);
-        if( itr == mp.end() ) {
-            que.push(next_node_string);
-            mp[next_node_string] = current_node_string;
-        }
-    }
-    /*w2*/
-    next_node[index1]=current_node[index1];
-    next_node[index1+1]=current_node[index1+1]-2;
-    next_node[index2]=current_node[index2];
-    next_node[index2+1]=current_node[index2+1]+2;
-
-    next_node[2]=current_node[5];
-    next_node[5]=current_node[2];
-
-    if(check_move(next_node)){
-        vector_to_string(next_node, next_node_string);
-        auto itr = mp.find(next_node_string);
-        if( itr == mp.end() ) {
-            que.push(next_node_string);
-            mp[next_node_string] = current_node_string;
-        }
-    }
-
-}
-void expand_DFS(vector<int> &current_node, stack<string> &st, unordered_map<string, string> &mp)
+void expand(vector<int> &current_node, priority_queue< pis, vector<pis>, myDFSComp > &pq, int depth, unordered_map<string, string> &mp)
 {
     vector<int> next_node(6);
     string next_node_string,current_node_string;
@@ -232,7 +142,7 @@ void expand_DFS(vector<int> &current_node, stack<string> &st, unordered_map<stri
         vector_to_string(next_node, next_node_string);
         auto itr = mp.find(next_node_string);
         if( itr == mp.end() ) {
-            st.push(next_node_string);
+            pq.push(pis(depth+1, next_node_string));
             mp[next_node_string] = current_node_string;
         }
     }
@@ -251,7 +161,7 @@ void expand_DFS(vector<int> &current_node, stack<string> &st, unordered_map<stri
         vector_to_string(next_node, next_node_string);
         auto itr = mp.find(next_node_string);
         if( itr == mp.end() ) {
-            st.push(next_node_string);
+            pq.push(pis(depth+1, next_node_string));
             mp[next_node_string] = current_node_string;
         }
     }
@@ -270,7 +180,7 @@ void expand_DFS(vector<int> &current_node, stack<string> &st, unordered_map<stri
         vector_to_string(next_node, next_node_string);
         auto itr = mp.find(next_node_string);
         if( itr == mp.end() ) {
-            st.push(next_node_string);
+            pq.push(pis(depth+1, next_node_string));
             mp[next_node_string] = current_node_string;
         }
     }
@@ -288,7 +198,7 @@ void expand_DFS(vector<int> &current_node, stack<string> &st, unordered_map<stri
         vector_to_string(next_node, next_node_string);
         auto itr = mp.find(next_node_string);
         if( itr == mp.end() ) {
-            st.push(next_node_string);
+            pq.push(pis(depth+1, next_node_string));
             mp[next_node_string] = current_node_string;
         }
     }
@@ -305,7 +215,114 @@ void expand_DFS(vector<int> &current_node, stack<string> &st, unordered_map<stri
         vector_to_string(next_node, next_node_string);
         auto itr = mp.find(next_node_string);
         if( itr == mp.end() ) {
-            st.push(next_node_string);
+            pq.push(pis(depth+1, next_node_string));
+            mp[next_node_string] = current_node_string;
+        }
+    }
+
+}
+void expand(vector<int> &current_node, priority_queue<pis, vector<pis>, myBFSComp > &pq, int depth, unordered_map<string, string> &mp)
+{
+    vector<int> next_node(6);
+    string next_node_string,current_node_string;
+    vector_to_string(current_node,current_node_string);
+
+    int index1=0,index2=3;
+    /* check the boat possition */
+    /* boat is right side, we need to move index of 3,4*/
+    if(current_node[2] == 0){
+        index1=3;
+        index2=0;
+    }
+
+    /*c1*/
+    next_node[index1]=current_node[index1]-1;
+    next_node[index1+1]=current_node[index1+1];
+
+    next_node[index2]=current_node[index2]+1;
+    next_node[index2+1]=current_node[index2+1];
+
+    next_node[2]=current_node[5];
+    next_node[5]=current_node[2];
+
+    if(check_move(next_node)){
+        vector_to_string(next_node, next_node_string);
+        auto itr = mp.find(next_node_string);
+        if( itr == mp.end() ) {
+            pq.push(pis(depth+1, next_node_string));
+            mp[next_node_string] = current_node_string;
+        }
+    }
+
+    /*c2*/
+    next_node[index1]=current_node[index1]-2;
+    next_node[index1+1]=current_node[index1+1];
+
+    next_node[index2]=current_node[index2]+2;
+    next_node[index2+1]=current_node[index2+1];
+
+    next_node[2]=current_node[5];
+    next_node[5]=current_node[2];
+
+    if(check_move(next_node)){
+        vector_to_string(next_node, next_node_string);
+        auto itr = mp.find(next_node_string);
+        if( itr == mp.end() ) {
+            pq.push(pis(depth+1, next_node_string));
+            mp[next_node_string] = current_node_string;
+        }
+    }
+
+    /*w1*/
+    next_node[index1]=current_node[index1];
+    next_node[index1+1]=current_node[index1+1]-1;
+
+    next_node[index2]=current_node[index2];
+    next_node[index2+1]=current_node[index2+1]+1;
+
+    next_node[2]=current_node[5];
+    next_node[5]=current_node[2];
+
+    if(check_move(next_node)){
+        vector_to_string(next_node, next_node_string);
+        auto itr = mp.find(next_node_string);
+        if( itr == mp.end() ) {
+            pq.push(pis(depth+1, next_node_string));
+            mp[next_node_string] = current_node_string;
+        }
+    }
+
+    /*w1c1*/
+    next_node[index1]=current_node[index1]-1;
+    next_node[index1+1]=current_node[index1+1]-1;
+
+    next_node[index2]=current_node[index2]+1;
+    next_node[index2+1]=current_node[index2+1]+1;
+
+    next_node[2]=current_node[5];
+    next_node[5]=current_node[2];
+    if(check_move(next_node)){
+        vector_to_string(next_node, next_node_string);
+        auto itr = mp.find(next_node_string);
+        if( itr == mp.end() ) {
+            pq.push(pis(depth+1, next_node_string));
+            mp[next_node_string] = current_node_string;
+        }
+    }
+    /*w2*/
+    next_node[index1]=current_node[index1];
+    next_node[index1+1]=current_node[index1+1]-2;
+    next_node[index2]=current_node[index2];
+    next_node[index2+1]=current_node[index2+1]+2;
+
+    next_node[2]=current_node[5];
+    next_node[5]=current_node[2];
+
+    if(check_move(next_node)){
+        vector_to_string(next_node, next_node_string);
+        auto itr = mp.find(next_node_string);
+        if( itr == mp.end() ) {
+            pq.push(pis(depth+1, next_node_string));
             mp[next_node_string] = current_node_string;
         }
     }
@@ -314,10 +331,10 @@ void expand_DFS(vector<int> &current_node, stack<string> &st, unordered_map<stri
 
 void solve_bfs(string i_s, string g_s, string output)
 {
-    queue<string> que;
+    priority_queue<pis, vector<pis>, myBFSComp > pq;
     unordered_map<string, string> mp;
 
-    int num_explored = 0;
+    int num_explored = 0, current_depth;
     string current_state;
     bool found = false;
 
@@ -332,22 +349,24 @@ void solve_bfs(string i_s, string g_s, string output)
     vector_to_string(goal_state, goal);
 
     /* push the initial_state into priority queue and hash table */
-    que.push(initial);
+    pq.push(pis(0,initial));
     mp[initial] = "0";
 
     /* loop do */
     while(1){
         /* if the frontier is empty, then return failure  */
-        if(que.empty()){
+        if(pq.empty()){
             found = false;
             break;
         }
 
         /* choose a leaf node and remove it from the frontier */
-        current_state = que.front();
-        que.pop();
+        current_state = pq.top().second;
+        current_depth = pq.top().first;
+        pq.pop();
 
         cout << "path: " << current_state << endl;
+        cout << "depth: " << current_depth<<endl;
         /* if the node contains a goal state, then return the corresponding solution */
         if(current_state == goal){
             found = true;
@@ -359,7 +378,7 @@ void solve_bfs(string i_s, string g_s, string output)
            only if not in the frontier or explored set
         ****************************************************************************/
         vector<int> tmp = string_to_vector(current_state, ' ');
-        expand_BFS(tmp,que,mp);
+        expand(tmp,pq,current_depth,mp);
 
     }
 
@@ -376,10 +395,10 @@ void solve_bfs(string i_s, string g_s, string output)
 
 void solve_dfs(string i_s, string g_s, string output)
 {
-    stack<string> st;
+    priority_queue<pis, vector<pis>, myDFSComp > pq;
     unordered_map<string, string> mp;
 
-    int num_explored = 0;
+    int num_explored = 0, current_depth;
     string current_state;
     bool found = false;
 
@@ -394,22 +413,24 @@ void solve_dfs(string i_s, string g_s, string output)
     vector_to_string(goal_state, goal);
 
     /* push the initial_state into priority queue and hash table */
-    st.push(initial);
+    pq.push(pis(0,initial));
     mp[initial] = "0";
 
     /* loop do */
     while(1){
         /* if the frontier is empty, then return failure  */
-        if(st.empty()){
+        if(pq.empty()){
             found = false;
             break;
         }
 
         /* choose a leaf node and remove it from the frontier */
-        current_state = st.top();
-        st.pop();
+        current_state = pq.top().second;
+        current_depth = pq.top().first;
+        pq.pop();
 
         cout << "path: " << current_state << endl;
+        cout << "depth: " << current_depth <<endl;
 
 
         /* if the node contains a goal state, then return the corresponding solution */
@@ -424,7 +445,7 @@ void solve_dfs(string i_s, string g_s, string output)
            only if not in the frontier or explored set
         ****************************************************************************/
         vector<int> tmp = string_to_vector(current_state, ' ');
-        expand_DFS(tmp,st,mp);
+        expand(tmp,pq,current_depth,mp);
 
 
     }
@@ -432,9 +453,10 @@ void solve_dfs(string i_s, string g_s, string output)
     if(found){
         cout << "# of nodes: "<< num_explored << endl;
         cout << "--------------------------------- debug ---------------------------" << endl;
-        while(!st.empty()){
-            cout << "path: " << st.top()<< endl;
-            st.pop();
+        while(!pq.empty()){
+            cout << "path: " << pq.top().second << endl;
+            cout << "depth: " << pq.top().first << endl;
+            pq.pop();
         }
     }else{
 
@@ -451,6 +473,90 @@ void solve_astar(string i_s, string g_s, string output)
 {
 
 }
+void test_expand(priority_queue<pis, vector<pis>, myBFSComp > &pq, unordered_map<string, string> &mp){
+    pq.push(pis(5,"3 3 3 3 3 3"));
+    mp["test"] = "check";
+}
+void test(string i_s, string g_s)
+{
+    priority_queue<pis, vector<pis>, myDFSComp > pq;
+    unordered_map<string, string> mp;
+
+    vector<int> v={0,0,0,3,3,1};
+    vector<int> v2={3,3,1,0,0,0};
+    pq.push(pis(2,"3 2 0 0 1 1"));
+    pq.push(pis(2,"3 1 0 0 2 1"));
+    pq.push(pis(2,"2 2 0 1 1 1"));
+    pq.push(pis(1,"0 1 1 3 2 0"));
+    pq.push(pis(1,"1 1 1 2 2 0"));
+    pq.push(pis(1,"0 2 1 3 1 0"));
+    /*
+    expand(v, pq, 0, mp);
+    pq.push(pis(10,"test"));
+    expand(v2, pq, 1, mp);
+    */
+    while(!pq.empty()){
+        cout << "d: " << pq.top().first << endl;
+        cout << pq.top().second <<endl;
+        pq.pop();
+    }
+    //cout << "previous node: "<< mp["0 1 1 3 2 0"] <<endl;
+
+    /*
+    int num_explored = 0;
+    bool found = false;
+
+    vector<int> initial_state(6);
+    vector<int> goal_state(6);
+
+    read_file(i_s, initial_state);
+    read_file(g_s, goal_state);
+
+    string initial, goal;
+    vector_to_string(initial_state, initial);
+    vector_to_string(goal_state, goal);
+
+    cout << "initial: " << initial <<endl;
+    cout << "goal: " << goal <<endl;
+    cout << "----------------" <<endl;
+    test_expand(pq,mp);
+    pq.push(pis(2,"3 1 1 0 2 0"));
+    pq.push(pis(0,"3 3 1 0 0 0"));
+    pq.push(pis(1,"3 2 0 0 1 1"));
+    while(!pq.empty()){
+
+        cout << "depth: " << pq.top().first << endl <<endl;
+        cout << "state: " << pq.top().second << endl;
+
+        vector<int> v = string_to_vector(pq.top().second, ' ');
+
+        cout << "test s_to_v function" << endl;
+        for(int num: v){
+            cout << num << ' ';
+        }
+        cout<< endl;
+
+        mp[pq.top().second] = "previous node";
+        pq.pop();
+
+        cout << "-------------------" <<endl;
+    }
+    cout << "------------mp-----------------" << endl;
+    for(auto itr = mp.begin(); itr != mp.end(); ++itr){
+        cout << "mp value: " << itr->first << endl;
+        cout << "previous node: " << itr->second <<endl<<"-----------" <<endl;
+    }
+
+    cout << "\n--------find-----------" <<endl;
+    auto itr = mp.find("3 1 1 0 2 0");
+    if( itr != mp.end() ) {
+        cout << "there is" << endl;
+    } else {
+        cout << "there is not" << endl;
+    }
+    */
+
+}
 
 /*
     < initial state file > < goal state file > < mode > < output file >
@@ -465,7 +571,8 @@ int main(int argc, char *argv[])
     }
 
     if(strcmp(argv[3], "bfs") == 0){
-        solve_bfs(argv[1], argv[2], argv[4]);
+        test(argv[1], argv[2]);
+        //solve_bfs(argv[1], argv[2], argv[4]);
     }else if(strcmp(argv[3], "dfs") == 0){
         solve_dfs(argv[1], argv[2], argv[4]);
     }else if(strcmp(argv[3], "iddfs") == 0){
