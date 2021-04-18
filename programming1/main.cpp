@@ -11,21 +11,20 @@
 
 using namespace std;
 
-#ifndef DEBUG
-#define DEBUG	true
-#endif
-
-#define All(obj) (obj).begin(),(obj).end()
-#define REP(i,n) for(int i=0;i<(n);++i)
-#define REPR(i,n) for(int i=0; i>=(n);--i)
-#define FOR(i,b,n) for(int i=(b);i<(n);++i)
-
 typedef long long ll;
+typedef pair<int,pair<int,string>> pipis;
 
 const int M=2e5+5;
 const int INF=2e9;
 const int MOD=1e9+7;
 
+struct myComp {
+    constexpr bool operator()( pair<int,pair<int,string>> const& a, pair<int,pair<int,string>> const& b)
+        const noexcept
+    {
+        return a.first > b.first;
+    }
+};
 
 void read_file(string input, vector<int> &v)
 {
@@ -418,6 +417,128 @@ void expand_IDDFS(vector<int> &current_node, stack<pair<int,string>> &st, int de
     }
 
 }
+
+/* n+1 + h(n) */
+int evaluation_astar(vector<int> &current_node, vector<int> &goal_node, int depth)
+{
+    int h = abs(current_node[0]-goal_node[0]) + abs(current_node[1]-goal_node[1]);
+    cout << "h: "<< h <<endl;
+    return h+depth+1;
+}
+
+void expand_astar(vector<int> &current_node, vector<int> &goal_node, priority_queue<pipis, vector<pipis>, myComp > &pq, int depth, unordered_map<string, string> &mp)
+{
+    vector<int> next_node(6);
+    string next_node_string,current_node_string;
+    vector_to_string(current_node,current_node_string);
+    int cost;
+
+    int index1=0,index2=3;
+    /* check the boat possition */
+    /* boat is right side, we need to move index of 3,4*/
+    if(current_node[2] == 0){
+        index1=3;
+        index2=0;
+    }
+
+    /*c1*/
+    next_node[index1]=current_node[index1]-1;
+    next_node[index1+1]=current_node[index1+1];
+
+    next_node[index2]=current_node[index2]+1;
+    next_node[index2+1]=current_node[index2+1];
+
+    next_node[2]=current_node[5];
+    next_node[5]=current_node[2];
+
+    if(check_move(next_node)){
+        vector_to_string(next_node, next_node_string);
+        auto itr = mp.find(next_node_string);
+        if( itr == mp.end() ) {
+            cost = evaluation_astar(next_node, goal_node, depth);
+            pq.push(pipis(cost,pair<int,string>(depth+1, next_node_string)));
+            mp[next_node_string] = current_node_string;
+        }
+    }
+
+    /*c2*/
+    next_node[index1]=current_node[index1]-2;
+    next_node[index1+1]=current_node[index1+1];
+
+    next_node[index2]=current_node[index2]+2;
+    next_node[index2+1]=current_node[index2+1];
+
+    next_node[2]=current_node[5];
+    next_node[5]=current_node[2];
+
+    if(check_move(next_node)){
+        vector_to_string(next_node, next_node_string);
+        auto itr = mp.find(next_node_string);
+        if( itr == mp.end() ) {
+            cost = evaluation_astar(next_node, goal_node, depth);
+            pq.push(pipis(cost,pair<int,string>(depth+1, next_node_string)));
+            mp[next_node_string] = current_node_string;
+        }
+    }
+
+    /*w1*/
+    next_node[index1]=current_node[index1];
+    next_node[index1+1]=current_node[index1+1]-1;
+
+    next_node[index2]=current_node[index2];
+    next_node[index2+1]=current_node[index2+1]+1;
+
+    next_node[2]=current_node[5];
+    next_node[5]=current_node[2];
+
+    if(check_move(next_node)){
+        vector_to_string(next_node, next_node_string);
+        auto itr = mp.find(next_node_string);
+        if( itr == mp.end() ) {
+            cost = evaluation_astar(next_node, goal_node, depth);
+            pq.push(pipis(cost,pair<int,string>(depth+1, next_node_string)));
+            mp[next_node_string] = current_node_string;
+        }
+    }
+
+    /*w1c1*/
+    next_node[index1]=current_node[index1]-1;
+    next_node[index1+1]=current_node[index1+1]-1;
+
+    next_node[index2]=current_node[index2]+1;
+    next_node[index2+1]=current_node[index2+1]+1;
+
+    next_node[2]=current_node[5];
+    next_node[5]=current_node[2];
+    if(check_move(next_node)){
+        vector_to_string(next_node, next_node_string);
+        auto itr = mp.find(next_node_string);
+        if( itr == mp.end() ) {
+            cost = evaluation_astar(next_node, goal_node, depth);
+            pq.push(pipis(cost,pair<int,string>(depth+1, next_node_string)));
+            mp[next_node_string] = current_node_string;
+        }
+    }
+    /*w2*/
+    next_node[index1]=current_node[index1];
+    next_node[index1+1]=current_node[index1+1]-2;
+    next_node[index2]=current_node[index2];
+    next_node[index2+1]=current_node[index2+1]+2;
+
+    next_node[2]=current_node[5];
+    next_node[5]=current_node[2];
+
+    if(check_move(next_node)){
+        vector_to_string(next_node, next_node_string);
+        auto itr = mp.find(next_node_string);
+        if( itr == mp.end() ) {
+            cost = evaluation_astar(next_node, goal_node, depth);
+            pq.push(pipis(cost,pair<int,string>(depth+1, next_node_string)));
+            mp[next_node_string] = current_node_string;
+        }
+    }
+
+}
 void solve_bfs(string i_s, string g_s, string output)
 {
     queue<string> que;
@@ -578,7 +699,7 @@ void solve_iddfs(string i_s, string g_s, string output)
         if(found or no_solution){
             break;
         }
-        cout << "limit:"<<limit<<endl;
+        cout << "-------------limit:"<<limit<<endl;
         int max_depth = 0;
         /* push the initial_state into priority queue and hash table */
         st.push(pair<int,string>(0,initial));
@@ -624,15 +745,85 @@ void solve_iddfs(string i_s, string g_s, string output)
     if(found){
         cout << "# of nodes: "<< num_explored << endl;
     }else{
-        cout << "# of nodes: "<< num_explored << endl;
+
     }
 
 
 
 }
+
+/*
+    f(n)= g(n) + h(n)
+    g(n) = depth;
+    h(n) is difference
+
+    h(n) is increasing
+    h(n) is decreasing
+
+*/
 void solve_astar(string i_s, string g_s, string output)
 {
+    /* cost, depth, node */
+    priority_queue<pipis, vector<pipis>, myComp > pq;
+    unordered_map<string, string> mp;
 
+    int num_explored = 0, current_depth, current_cost;
+    string current_state;
+    bool found = false;
+
+    vector<int> initial_state(6);
+    vector<int> goal_state(6);
+
+    read_file(i_s, initial_state);
+    read_file(g_s, goal_state);
+
+    string initial, goal;
+    vector_to_string(initial_state, initial);
+    vector_to_string(goal_state, goal);
+
+    /* push the initial_state into priority queue and hash table */
+    pq.push(pipis(0,pair<int,string>(0,initial)));
+    mp[initial] = "0";
+
+    /* loop do */
+    while(1){
+        /* if the frontier is empty, then return failure  */
+        if(pq.empty()){
+            found = false;
+            break;
+        }
+
+        /* choose a leaf node and remove it from the frontier */
+        current_state = pq.top().second.second;
+        current_depth = pq.top().second.first;
+        current_cost = pq.top().first;
+
+        pq.pop();
+
+        cout << "path: " << current_state << endl;
+        cout << "depth: " << current_depth<<endl;
+        cout << "cost: " << current_cost << endl<<endl;
+
+        /* if the node contains a goal state, then return the corresponding solution */
+        if(current_state == goal){
+            found = true;
+            break;
+        }
+        ++num_explored;
+
+        /* expand the chosen node, adding the resulting nodes to the frontier
+           only if not in the frontier or explored set
+        ****************************************************************************/
+        vector<int> tmp = string_to_vector(current_state, ' ');
+        expand_astar(tmp,goal_state,pq,current_depth,mp);
+
+    }
+
+    if(found){
+        cout << num_explored;
+    }else{
+
+    }
 }
 
 /*
