@@ -78,7 +78,7 @@ void display_result(int num_expanded, vector<string> path)
     for(int i = depth; i >= 0; --i){
         cout << "Node: " << path[i] << endl;
     }
-    cout << endl << "depth: " << depth << endl << "expanded node: " << num_expanded << endl;
+    cout << endl << "depth: " << depth << endl << "expanded node: " << num_expanded << endl << endl;
 
 }
 
