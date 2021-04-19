@@ -35,6 +35,14 @@ void solution_path(unordered_map<string,string> &mp, vector<string> &path, strin
         current_node = mp[current_node];
     }
 }
+void solution_path_iddfs_edit(unordered_map<string,pair<int,string>> &mp, vector<string> &path, string goal_node)
+{
+    string current_node = goal_node;
+    while(current_node != "0"){
+        path.push_back(current_node);
+        current_node = mp[current_node].second;
+    }
+}
 void read_file(string input, vector<int> &v)
 {
     ifstream ifs(input);
@@ -443,6 +451,168 @@ void expand_IDDFS(vector<int> &current_node, stack<pair<int,string>> &st, int de
     }
 
 }
+void expand_IDDFS_edited(vector<int> &current_node, stack<pair<int,string>> &st, int depth, unordered_map<string, pair<int,string>> &mp)
+{
+    vector<int> next_node(6);
+    string next_node_string,current_node_string;
+    vector_to_string(current_node,current_node_string);
+
+    int index1=0,index2=3;
+    /* check the boat possition */
+    /* boat is right side, we need to move index of 3,4*/
+    if(current_node[2] == 0){
+        index1=3;
+        index2=0;
+    }
+
+    /*c1*/
+    next_node[index1]=current_node[index1]-1;
+    next_node[index1+1]=current_node[index1+1];
+
+    next_node[index2]=current_node[index2]+1;
+    next_node[index2+1]=current_node[index2+1];
+
+    next_node[2]=current_node[5];
+    next_node[5]=current_node[2];
+
+    if(check_move(next_node)){
+        vector_to_string(next_node, next_node_string);
+        auto itr = mp.find(next_node_string);
+        if( itr == mp.end() ) {
+            st.push(pair<int,string>(depth+1,next_node_string));
+            mp[next_node_string] = pair<int,string>(depth+1,current_node_string);
+        }else{
+            if(mp[next_node_string].first > depth+1){
+                /*
+                int tmp_d = mp[next_node_string].first;
+                string tmp_s = mp[next_node_string].second;
+                st.push(pair<int,string>(tmp_d,next_node_string));
+                mp[next_node_string]=pair<int,string>(tmp_d,tmp_s);
+                */
+                st.push(pair<int,string>(depth+1,next_node_string));
+                mp[next_node_string]=pair<int,string>(depth+1,current_node_string);
+            }
+        }
+    }
+
+    /*c2*/
+    next_node[index1]=current_node[index1]-2;
+    next_node[index1+1]=current_node[index1+1];
+
+    next_node[index2]=current_node[index2]+2;
+    next_node[index2+1]=current_node[index2+1];
+
+    next_node[2]=current_node[5];
+    next_node[5]=current_node[2];
+
+    if(check_move(next_node)){
+        vector_to_string(next_node, next_node_string);
+        auto itr = mp.find(next_node_string);
+        if( itr == mp.end() ) {
+            st.push(pair<int,string>(depth+1,next_node_string));
+            mp[next_node_string] = pair<int,string>(depth+1,current_node_string);
+        }else{
+            if(mp[next_node_string].first > depth+1){
+                /*
+                int tmp_d = mp[next_node_string].first;
+                string tmp_s = mp[next_node_string].second;
+                st.push(pair<int,string>(tmp_d,next_node_string));
+                mp[next_node_string]=pair<int,string>(tmp_d,tmp_s);
+                */
+                st.push(pair<int,string>(depth+1,next_node_string));
+                mp[next_node_string]=pair<int,string>(depth+1,current_node_string);
+            }
+        }
+    }
+
+    /*w1*/
+    next_node[index1]=current_node[index1];
+    next_node[index1+1]=current_node[index1+1]-1;
+
+    next_node[index2]=current_node[index2];
+    next_node[index2+1]=current_node[index2+1]+1;
+
+    next_node[2]=current_node[5];
+    next_node[5]=current_node[2];
+
+    if(check_move(next_node)){
+        vector_to_string(next_node, next_node_string);
+        auto itr = mp.find(next_node_string);
+        if( itr == mp.end() ) {
+            st.push(pair<int,string>(depth+1,next_node_string));
+            mp[next_node_string] = pair<int,string>(depth+1,current_node_string);
+        }else{
+            if(mp[next_node_string].first > depth+1){
+                /*
+                int tmp_d = mp[next_node_string].first;
+                string tmp_s = mp[next_node_string].second;
+                st.push(pair<int,string>(tmp_d,next_node_string));
+                mp[next_node_string]=pair<int,string>(tmp_d,tmp_s);
+                */
+                st.push(pair<int,string>(depth+1,next_node_string));
+                mp[next_node_string]=pair<int,string>(depth+1,current_node_string);
+            }
+        }
+    }
+
+    /*w1c1*/
+    next_node[index1]=current_node[index1]-1;
+    next_node[index1+1]=current_node[index1+1]-1;
+
+    next_node[index2]=current_node[index2]+1;
+    next_node[index2+1]=current_node[index2+1]+1;
+
+    next_node[2]=current_node[5];
+    next_node[5]=current_node[2];
+    if(check_move(next_node)){
+        vector_to_string(next_node, next_node_string);
+        auto itr = mp.find(next_node_string);
+        if( itr == mp.end() ) {
+            st.push(pair<int,string>(depth+1,next_node_string));
+            mp[next_node_string] = pair<int,string>(depth+1,current_node_string);
+        }else{
+            if(mp[next_node_string].first > depth+1){
+                /*
+                int tmp_d = mp[next_node_string].first;
+                string tmp_s = mp[next_node_string].second;
+                st.push(pair<int,string>(tmp_d,next_node_string));
+                mp[next_node_string]=pair<int,string>(tmp_d,tmp_s);
+                */
+                st.push(pair<int,string>(depth+1,next_node_string));
+                mp[next_node_string]=pair<int,string>(depth+1,current_node_string);
+            }
+        }
+    }
+    /*w2*/
+    next_node[index1]=current_node[index1];
+    next_node[index1+1]=current_node[index1+1]-2;
+    next_node[index2]=current_node[index2];
+    next_node[index2+1]=current_node[index2+1]+2;
+
+    next_node[2]=current_node[5];
+    next_node[5]=current_node[2];
+
+    if(check_move(next_node)){
+        vector_to_string(next_node, next_node_string);
+        auto itr = mp.find(next_node_string);
+        if( itr == mp.end() ) {
+            st.push(pair<int,string>(depth+1,next_node_string));
+            mp[next_node_string] = pair<int,string>(depth+1,current_node_string);
+        }else{
+            if(mp[next_node_string].first > depth+1){
+                /*
+                int tmp_d = mp[next_node_string].first;
+                string tmp_s = mp[next_node_string].second;
+                st.push(pair<int,string>(tmp_d,next_node_string));
+                mp[next_node_string]=pair<int,string>(tmp_d,tmp_s);
+                */
+                st.push(pair<int,string>(depth+1,next_node_string));
+                mp[next_node_string]=pair<int,string>(depth+1,current_node_string);
+            }
+        }
+    }
+
+}
 
 /* n+1 + h(n) */
 int evaluation_astar(vector<int> &current_node, vector<int> &goal_node, int depth)
@@ -808,7 +978,101 @@ void solve_iddfs(string i_s, string g_s, string output)
 
 
 }
+void solve_iddfs_edited(string i_s, string g_s, string output)
+{
+    unordered_map<string, pair<int,string>> mp;
 
+    int num_explored = 0, current_depth;
+    bool found = false;
+    bool no_solution = false;
+
+    string current_state;
+
+
+    vector<int> initial_state(6);
+    vector<int> goal_state(6);
+
+    read_file(i_s, initial_state);
+    read_file(g_s, goal_state);
+
+    string initial, goal;
+    vector_to_string(initial_state, initial);
+    vector_to_string(goal_state, goal);
+
+    /* loop until find or no_solution == true */
+    for(int limit = 0; ;++limit){
+        stack<pair<int,string>> st;
+
+
+        if(found or no_solution){
+            break;
+        }
+        mp.clear();
+        //cout << "-------------limit:"<<limit<<endl;
+        fflush(stdout);
+        int max_depth = 0;
+        /* push the initial_state into priority queue and hash table */
+        st.push(pair<int,string>(0,initial));
+        mp[initial] = pair<int,string>(0,"0");
+
+        /* loop do */
+        while(1){
+            /* if the frontier is empty, then return failure  */
+            if(st.empty()){
+                if(limit > max_depth)
+                    no_solution = true;
+                break;
+            }
+
+            /* choose a leaf node and remove it from the frontier */
+            current_state = st.top().second;
+            current_depth = st.top().first;
+            st.pop();
+
+            max_depth=max(max_depth,current_depth);
+            /*
+            cout << "path: " << current_state << endl;
+            cout << "depth: " << current_depth << endl;
+            */
+            /* if the node contains a goal state, then return the corresponding solution */
+            if(current_state == goal){
+                found = true;
+                break;
+            }
+
+            ++num_explored;
+
+            /* expand the chosen node, adding the resulting nodes to the frontier
+            only if not in the frontier or explored set
+            ****************************************************************************/
+            vector<int> tmp = string_to_vector(current_state, ' ');
+            if(limit >= current_depth+1){
+                expand_IDDFS_edited(tmp,st,current_depth,mp);
+            }
+        }
+
+    }
+
+    if(found){
+        vector<string> path;
+        solution_path_iddfs_edit(mp,path,goal);
+        display_result(num_explored,path);
+        write_file(output, num_explored, path);
+    }else{
+    ofstream ofs(output);
+
+        if (!ofs) {
+            fprintf(stderr, "invalid output file\n");
+            exit(1);
+        }
+        ofs << "no solution\n";
+
+        ofs.close();
+    }
+
+
+
+}
 /*
     f(n)= g(n) + h(n)
     g(n) = depth;
@@ -914,6 +1178,8 @@ int main(int argc, char *argv[])
         solve_iddfs(argv[1], argv[2], argv[4]);
     }else if(strcmp(argv[3], "astar") == 0){
         solve_astar(argv[1], argv[2], argv[4]);
+    }else if(strcmp(argv[3], "iddfs_edited") == 0){
+        solve_iddfs_edited(argv[1], argv[2], argv[4]);
     }else{
         fprintf(stderr, "invalid mode\n");
         return EXIT_FAILURE;
