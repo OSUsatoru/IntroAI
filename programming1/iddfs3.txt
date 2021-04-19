@@ -378,4 +378,4 @@ Node: 95 93 0 1 1 1
 Node: 96 94 1 0 0 0
 
 depth: 377
-expanded node: 160751
+expanded node: 162238
