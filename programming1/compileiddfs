@@ -1,0 +1,5 @@
+#!/bin/bash
+
+./main start1.txt goal1.txt iddfs iddfs1.txt
+./main start2.txt goal2.txt iddfs iddfs2.txt
+./main start3.txt goal3.txt iddfs iddfs3.txt

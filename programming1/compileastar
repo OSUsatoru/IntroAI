@@ -1,0 +1,5 @@
+#!/bin/bash
+
+./main start1.txt goal1.txt astar astar1.txt
+./main start2.txt goal2.txt astar astar2.txt
+./main start3.txt goal3.txt astar astar3.txt

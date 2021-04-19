@@ -1,0 +1,19 @@
+#!/bin/bash
+
+g++ -o main main.cpp
+
+./main start1.txt goal1.txt bfs bfs1.txt
+./main start2.txt goal2.txt bfs bfs2.txt
+./main start3.txt goal3.txt bfs bfs3.txt
+
+./main start1.txt goal1.txt dfs dfs1.txt
+./main start2.txt goal2.txt dfs dfs2.txt
+./main start3.txt goal3.txt dfs dfs3.txt
+
+./main start1.txt goal1.txt iddfs iddfs1.txt
+./main start2.txt goal2.txt iddfs iddfs2.txt
+./main start3.txt goal3.txt iddfs iddfs3.txt
+
+./main start1.txt goal1.txt astar astar1.txt
+./main start2.txt goal2.txt astar astar2.txt
+./main start3.txt goal3.txt astar astar3.txt

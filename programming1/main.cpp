@@ -26,6 +26,15 @@ struct myComp {
     }
 };
 
+void solution_path(unordered_map<string,string> &mp, vector<string> &path, string goal_node)
+{
+    string current_node = goal_node;
+    while(current_node != "0"){
+
+        path.push_back(current_node);
+        current_node = mp[current_node];
+    }
+}
 void read_file(string input, vector<int> &v)
 {
     ifstream ifs(input);
@@ -44,15 +53,21 @@ void read_file(string input, vector<int> &v)
 }
 
 /*need to print out the number of search nodes expanded*/
-void write_file(string output, int num_node, bool solved)
+void write_file(string output, int num_expanded, vector<string> path)
 {
     ofstream ofs(output);
 
-    if(solved){
-        ofs << num_node;
-    }else{
-        ofs << "no solution found";
+    if (!ofs) {
+        fprintf(stderr, "invalid output file\n");
+        exit(1);
     }
+
+    int depth = path.size()-1;
+    for(int i = depth; i >= 0; --i){
+        ofs << "Node: " << path[i] << endl;
+    }
+    ofs << endl << "depth: " << depth << endl << "expanded node: " << num_expanded << endl;
+
     ofs.close();
 }
 
@@ -422,7 +437,7 @@ void expand_IDDFS(vector<int> &current_node, stack<pair<int,string>> &st, int de
 int evaluation_astar(vector<int> &current_node, vector<int> &goal_node, int depth)
 {
     int h = abs(current_node[0]-goal_node[0]) + abs(current_node[1]-goal_node[1]);
-    cout << "h: "<< h <<endl;
+    //cout << "h: "<< h <<endl;
     return h+depth+1;
 }
 
@@ -574,7 +589,7 @@ void solve_bfs(string i_s, string g_s, string output)
         current_state = que.front();
         que.pop();
 
-        cout << "path: " << current_state << endl;
+        //cout << "path: " << current_state << endl;
         /* if the node contains a goal state, then return the corresponding solution */
         if(current_state == goal){
             found = true;
@@ -591,9 +606,19 @@ void solve_bfs(string i_s, string g_s, string output)
     }
 
     if(found){
-        cout << num_explored;
+        vector<string> path;
+        solution_path(mp,path,goal);
+        write_file(output, num_explored, path);
     }else{
+        ofstream ofs(output);
 
+        if (!ofs) {
+            fprintf(stderr, "invalid output file\n");
+            exit(1);
+        }
+        ofs << "no solution\n";
+
+        ofs.close();
     }
 
 
@@ -636,7 +661,7 @@ void solve_dfs(string i_s, string g_s, string output)
         current_state = st.top();
         st.pop();
 
-        cout << "path: " << current_state << endl;
+        //cout << "path: " << current_state << endl;
 
 
         /* if the node contains a goal state, then return the corresponding solution */
@@ -657,14 +682,19 @@ void solve_dfs(string i_s, string g_s, string output)
     }
 
     if(found){
-        cout << "# of nodes: "<< num_explored << endl;
-        cout << "--------------------------------- debug ---------------------------" << endl;
-        while(!st.empty()){
-            cout << "path: " << st.top()<< endl;
-            st.pop();
-        }
+        vector<string> path;
+        solution_path(mp,path,goal);
+        write_file(output, num_explored, path);
     }else{
+        ofstream ofs(output);
 
+        if (!ofs) {
+            fprintf(stderr, "invalid output file\n");
+            exit(1);
+        }
+        ofs << "no solution\n";
+
+        ofs.close();
     }
 
 
@@ -673,7 +703,7 @@ void solve_dfs(string i_s, string g_s, string output)
 
 void solve_iddfs(string i_s, string g_s, string output)
 {
-
+    unordered_map<string, string> mp;
 
     int num_explored = 0, current_depth;
     bool found = false;
@@ -695,11 +725,13 @@ void solve_iddfs(string i_s, string g_s, string output)
     /* loop until find or no_solution == true */
     for(int limit = 0; ;++limit){
         stack<pair<int,string>> st;
-        unordered_map<string, string> mp;
+
+
         if(found or no_solution){
             break;
         }
-        cout << "-------------limit:"<<limit<<endl;
+        mp.clear();
+        //cout << "-------------limit:"<<limit<<endl;
         int max_depth = 0;
         /* push the initial_state into priority queue and hash table */
         st.push(pair<int,string>(0,initial));
@@ -720,9 +752,10 @@ void solve_iddfs(string i_s, string g_s, string output)
             st.pop();
 
             max_depth=max(max_depth,current_depth);
+            /*
             cout << "path: " << current_state << endl;
             cout << "depth: " << current_depth << endl;
-
+            */
             /* if the node contains a goal state, then return the corresponding solution */
             if(current_state == goal){
                 found = true;
@@ -743,9 +776,19 @@ void solve_iddfs(string i_s, string g_s, string output)
     }
 
     if(found){
-        cout << "# of nodes: "<< num_explored << endl;
+        vector<string> path;
+        solution_path(mp,path,goal);
+        write_file(output, num_explored, path);
     }else{
+    ofstream ofs(output);
 
+        if (!ofs) {
+            fprintf(stderr, "invalid output file\n");
+            exit(1);
+        }
+        ofs << "no solution\n";
+
+        ofs.close();
     }
 
 
@@ -799,11 +842,11 @@ void solve_astar(string i_s, string g_s, string output)
         current_cost = pq.top().first;
 
         pq.pop();
-
+        /*
         cout << "path: " << current_state << endl;
         cout << "depth: " << current_depth<<endl;
         cout << "cost: " << current_cost << endl<<endl;
-
+        */
         /* if the node contains a goal state, then return the corresponding solution */
         if(current_state == goal){
             found = true;
@@ -820,9 +863,19 @@ void solve_astar(string i_s, string g_s, string output)
     }
 
     if(found){
-        cout << num_explored;
+        vector<string> path;
+        solution_path(mp,path,goal);
+        write_file(output, num_explored, path);
     }else{
+        ofstream ofs(output);
 
+        if (!ofs) {
+            fprintf(stderr, "invalid output file\n");
+            exit(1);
+        }
+        ofs << "no solution\n";
+
+        ofs.close();
     }
 }
 
