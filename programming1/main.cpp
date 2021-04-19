@@ -70,6 +70,17 @@ void write_file(string output, int num_expanded, vector<string> path)
 
     ofs.close();
 }
+void display_result(int num_expanded, vector<string> path)
+{
+
+
+    int depth = path.size()-1;
+    for(int i = depth; i >= 0; --i){
+        cout << "Node: " << path[i] << endl;
+    }
+    cout << endl << "depth: " << depth << endl << "expanded node: " << num_expanded << endl;
+
+}
 
 
 void vector_to_string(vector<int> v, string &tmp)
@@ -608,6 +619,7 @@ void solve_bfs(string i_s, string g_s, string output)
     if(found){
         vector<string> path;
         solution_path(mp,path,goal);
+        display_result(num_explored,path);
         write_file(output, num_explored, path);
     }else{
         ofstream ofs(output);
@@ -684,6 +696,7 @@ void solve_dfs(string i_s, string g_s, string output)
     if(found){
         vector<string> path;
         solution_path(mp,path,goal);
+        display_result(num_explored,path);
         write_file(output, num_explored, path);
     }else{
         ofstream ofs(output);
@@ -778,6 +791,7 @@ void solve_iddfs(string i_s, string g_s, string output)
     if(found){
         vector<string> path;
         solution_path(mp,path,goal);
+        display_result(num_explored,path);
         write_file(output, num_explored, path);
     }else{
     ofstream ofs(output);
@@ -865,6 +879,7 @@ void solve_astar(string i_s, string g_s, string output)
     if(found){
         vector<string> path;
         solution_path(mp,path,goal);
+        display_result(num_explored,path);
         write_file(output, num_explored, path);
     }else{
         ofstream ofs(output);
