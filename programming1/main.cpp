@@ -1175,11 +1175,11 @@ int main(int argc, char *argv[])
     }else if(strcmp(argv[3], "dfs") == 0){
         solve_dfs(argv[1], argv[2], argv[4]);
     }else if(strcmp(argv[3], "iddfs") == 0){
-        solve_iddfs(argv[1], argv[2], argv[4]);
+        solve_iddfs_edited(argv[1], argv[2], argv[4]);
     }else if(strcmp(argv[3], "astar") == 0){
         solve_astar(argv[1], argv[2], argv[4]);
-    }else if(strcmp(argv[3], "iddfs_edited") == 0){
-        solve_iddfs_edited(argv[1], argv[2], argv[4]);
+    }else if(strcmp(argv[3], "old_iddfs") == 0){
+        solve_iddfs(argv[1], argv[2], argv[4]);
     }else{
         fprintf(stderr, "invalid mode\n");
         return EXIT_FAILURE;
