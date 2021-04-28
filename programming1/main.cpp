@@ -1125,6 +1125,7 @@ void solve_astar(string i_s, string g_s, string output)
         cout << "depth: " << current_depth<<endl;
         cout << "cost: " << current_cost << endl<<endl;
         */
+
         /* if the node contains a goal state, then return the corresponding solution */
         if(current_state == goal){
             found = true;

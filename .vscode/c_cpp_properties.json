@@ -1,0 +1,27 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${default}",
+                "${workspaceFolder}/programming2"
+                /*
+                "Board.h",
+                "OthelloBoard.h",
+                "Player.h",
+                "HumanPlayer.h",
+                "GameDriver.h",
+                "MinimaxPlayer.h"
+                */
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "windowsSdkVersion": "10.0.18362.0",
+            "cStandard": "c17"
+        }
+    ],
+    "version": 4
+}
