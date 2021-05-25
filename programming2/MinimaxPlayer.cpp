@@ -18,13 +18,20 @@ MinimaxPlayer::MinimaxPlayer(char symb) :
 MinimaxPlayer::~MinimaxPlayer() {
 
 }
+
 int min_value(OthelloBoard* b, char player, char opponent);
 
+/*
+	returns the difference of score
+***************************************/
 int Utility(OthelloBoard* b, char player, char opponent)
 {
 	return (b->count_score(player)) - (b->count_score(opponent));
 }
-
+/*
+	exoand all next move for player and store informaion
+	into the vector
+**************************************************/
 void Successor(OthelloBoard* b, std::vector<OthelloBoard> &v, char player)
 {
 	int index = 0;
@@ -46,20 +53,33 @@ void Successor(OthelloBoard* b, std::vector<OthelloBoard> &v, char player)
 	}
 	//std::cout << "a" <<v[0].count_score(player);
 }
-
+/*
+	this function check all next player's move
+	using accessor funciont
+	and send info to min_value function
+	these connection continue until game is over
+*************************************************/
 int max_value(OthelloBoard* b, char player, char opponent)
 {
-
+	bool no_move = false;
 	/*terminal test*/
-	if( b->has_legal_moves_remaining(player) == false and
-		b->has_legal_moves_remaining(opponent) == false){
+	if( b->has_legal_moves_remaining(player) == false){
+		no_move = true;
+		if(b->has_legal_moves_remaining(opponent) == false){
 			return Utility(b,player,opponent);
 		}
+	}
 
 	int max_v = -1000, tmp;
 	std::vector<OthelloBoard> v;
 	/* create player's next move */
-	Successor(b,v, player);
+	/* if there is a move */
+	if(!no_move){
+		Successor(b,v, player);
+	}else{
+		v.push_back(OthelloBoard(*b));
+	}
+
 	int size = v.size();
 
 	for(int i = 0; i < size; ++i){
@@ -73,17 +93,31 @@ int max_value(OthelloBoard* b, char player, char opponent)
 	return max_v;
 
 }
+/*
+	this function check all next opponent's move
+	using accessor funciont
+	and send info to max_value function
+	these connection continue until game is over
+*************************************************/
 int min_value(OthelloBoard* b, char player, char opponent)
 {
+	bool no_move = false;
 	/*terminal test*/
-	if( b->has_legal_moves_remaining(player) == false and
-		b->has_legal_moves_remaining(opponent) == false){
+	if( b->has_legal_moves_remaining(opponent) == false){
+		no_move = true;
+		if(b->has_legal_moves_remaining(player) == false){
 			return Utility(b,player,opponent);
 		}
+	}
+
 	int min_v = 1000, tmp;
 	std::vector<OthelloBoard> v;
 	/* create opponent's next move */
-	Successor(b,v,opponent);
+	if(!no_move){
+		Successor(b,v, opponent);
+	}else{
+		v.push_back(OthelloBoard(*b));
+	}
 	int size = v.size();
 
 	for(int i = 0; i < size; ++i){
@@ -98,9 +132,46 @@ int min_value(OthelloBoard* b, char player, char opponent)
 
 }
 
-void minimaxDecision(OthelloBoard* b,char player)
+/*
+	when this called, there is atleast one proper movement for player
+	this function expands player's next move with col and row information
+	if this function finds better max value, this updatas col and row for solution path
+***********************************************************************/
+void minimaxDecision(OthelloBoard* b, char player, char opponent, int& col, int& row)
 {
-	std::cout << b->count_score(player);
+
+	int max_v = -1000, tmp;
+	std::vector<OthelloBoard> v;
+	std::vector<int> v_col, v_row;
+
+	v.push_back(OthelloBoard(*b));
+	int index = 0;
+	int num_cols = 4, num_rows = 4;
+
+	for (int c = 0; c < num_cols; c++) {
+		for (int r = 0; r < num_rows; r++) {
+			if (b->is_cell_empty(c, r) && b->is_legal_move(c, r, player)) {
+				v.push_back(OthelloBoard(*b));
+				v[index].play_move(c,r,player);
+				v_col.push_back(c);
+				v_row.push_back(r);
+				//std::cout << v_col[index] << v_row[index];
+				++index;
+			}
+		}
+	}
+
+
+	for(int i = 0; i < index; ++i){
+		tmp = min_value(&v[i], player, opponent);
+		//int tmp = v[i].count_score(player);
+		if(tmp > max_v){
+			max_v = tmp;
+			col = v_col[i];
+			row = v_row[i];
+		}
+	}
+
 }
 
 
@@ -133,9 +204,17 @@ void MinimaxPlayer::get_move(OthelloBoard* b, int& col, int& row) {
 	if(player == 'O'){
 		opponent = 'X';
 	}
+	int tmp_col, tmp_row;
+	minimaxDecision(b,player,opponent,tmp_col,tmp_row);
+	col = tmp_col;
+	row = tmp_row;
+	/* Debug comments */
+	//std::cout << col << row;
 	//std::cout <<player<<'\n'<<opponent<<'\n';
+	/*
 	std::cout << max_value(b,player,opponent);
 	std::vector<OthelloBoard> v;
+	*/
 	/*
 	Successor(b,v,player);
 	minimaxDecision(&v[0],player);
@@ -146,10 +225,12 @@ void MinimaxPlayer::get_move(OthelloBoard* b, int& col, int& row) {
 
 	std::cout << v[0].get_cell(1,1);
 	*/
+	/*
     std::cout << "Enter col: ";
     std::cin >> col;
     std::cout << "Enter row: ";
     std::cin >> row;
+	*/
 }
 
 MinimaxPlayer* MinimaxPlayer::clone() {
