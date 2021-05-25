@@ -39,55 +39,8 @@ vector<string> split(const string &str, char sep);
 void readFile(char *in_file, vector<sentence> &v );
 void proper_word(vector<string> &text);
 void create_vocabulary(vector<sentence> &trainingSet, vector<string> &vocabulary);
+void convert_process(vector<sentence> &sentenceSet, vector<string> &vocabulary, vector<vector<string>> &converted_sentenceSet);
 void classification();
-
-
-/*
-void readFile(vector<sentence> &v)
-{
-	int i = 0;
-	int counter = 0;
-	int numClassLabel = 0;
-	string line;
-
-	//ifstream file("trainingSet.txt", ifstream::in);
-	ifstream file("trainingSet.txt", ifstream::in); // Currently using a smaller test file I created
-
-	if (file.fail())
-	{
-		fprintf(stderr, "Invalid filename\n");
-		exit(2);
-	}
-
-	// These two while loops will tokenize the entire text file and put it into a vector
-	while (getline(file, line))
-	{
-		v.push_back(sentence()); // Create a new spot for a review
-
-		stringstream ss(line);
-		while (getline(ss, line, ' '))
-		{
-			if ((counter % 2) == 0) // for text
-			{
-				//cout << "Text: " << line << endl;
-				v[i].text[j].pushback(line);
-			}
-			else if ((counter % 2) == 1) // for classLabel
-			{
-				numClassLabel = stoi(line);
-				//cout << "ClassLabel: " << numClassLabel << endl;
-				v[i].classLabel = numClassLabel;
-			}
-
-			counter += 1;
-		}
-
-		i += 1;
-	}
-
-	file.close();
-}
-
 
 /*
 	argv[1] is the
@@ -97,12 +50,12 @@ int main(int argc, char *argv[])
 	vector<sentence> testSet, trainingSet;
 	vector<string> vocabrary;
 
-	char test[] = "testSet.txt";
-	char training[] = "trainingSet.txt";
+	char testText[] = "testSet.txt", trainingText[] = "trainingSet.txt";
+	char test_out[] = "preprocessed_test.txt", training_out[]="preprocessed_train.txt";
 
 	/* Get the data into testSet and trainingSet */
-	readFile(test, testSet);
-	readFile(training, trainingSet);
+	readFile(testText, testSet);
+	readFile(trainingText, trainingSet);
 	/* Create feature vector */
 	create_vocabulary(trainingSet, vocabrary);
 	for(auto &itr: vocabrary){
@@ -238,7 +191,7 @@ void create_vocabulary(vector<sentence> &trainingSet, vector<string> &vocabulary
 /*
 	convert vector of sentence into feature vector
 ************************************/
-void convert(vector<sentence> &sentenceSet, vector<string> &vocabulary)
+void convert_process(vector<sentence> &sentenceSet, vector<string> &vocabulary, vector<vector<string>> &converted_sentenceSet)
 {
 
 }
