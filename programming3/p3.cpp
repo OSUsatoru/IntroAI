@@ -1,3 +1,5 @@
+// Group members: Satoru Yamamoto,
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -40,8 +42,8 @@ void readFile(char *in_file, vector<sentence> &v );
 void proper_word(vector<string> &text);
 void create_vocabulary(vector<sentence> &trainingSet, vector<string> &vocabulary);
 void convert_process(char *out_file, vector<sentence> &sentenceSet, vector<string> &vocabulary, vector<vector<string>> &converted_sentenceSet);
-void classification_training(vector<vector<string>> &converted_sentenceSet, vector<pair<float,float>> &training_prob);
-float classification_testing(vector<vector<string>> &converted_sentenceSet,  vector<pair<float,float>> &training_prob);
+void classification_training(vector<vector<string>> &converted_sentenceSet, vector<pair<float,float>> &training_prob, vector<pair<float,float>> &training_prob2);
+float classification_testing(vector<vector<string>> &converted_sentenceSet,  vector<pair<float,float>> &training_prob, vector<pair<float,float>> &training_prob2);
 /*
 	argv[1] is the
 ***********************************/
@@ -68,11 +70,12 @@ int main(int argc, char *argv[])
 	convert_process(training_out,trainingSet,vocabrary,converted_trainingSet);
 
 	vector<pair<float,float>> first_training(vocabrary.size(), pair<float,float>(0.0,0.0));
+	vector<pair<float,float>> first_training2(vocabrary.size(), pair<float,float>(0.0,0.0));
 	//cout << vocabrary.size();
-	classification_training(converted_trainingSet, first_training);
+	classification_training(converted_trainingSet, first_training,first_training2);
 	float accurate_first, accurate_second;
-	accurate_first = classification_testing(converted_trainingSet, first_training);
-	accurate_second = classification_testing(converted_testSet, first_training);
+	accurate_first = classification_testing(converted_trainingSet, first_training, first_training2);
+	accurate_second = classification_testing(converted_testSet, first_training, first_training2);
 
 
 		/* print  */
@@ -268,7 +271,7 @@ void convert_process(char *out_file, vector<sentence> &sentenceSet, vector<strin
 
 
  ******************************************/
-void classification_training(vector<vector<string>> &converted_sentenceSet, vector<pair<float,float>> &training_prob)
+void classification_training(vector<vector<string>> &converted_sentenceSet, vector<pair<float,float>> &training_prob, vector<pair<float,float>> &training_prob2)
 {
 	// converted_sentenceSet[0].size() is number of words
 	//  converted_sentenceSet.size() is number of sentences
@@ -282,11 +285,15 @@ void classification_training(vector<vector<string>> &converted_sentenceSet, vect
 	}
 	training_prob[converted_sentenceSet[0].size()-1].first = good_CL/converted_sentenceSet.size();
 	training_prob[converted_sentenceSet[0].size()-1].second = bad_CL/converted_sentenceSet.size();
+	training_prob2[converted_sentenceSet[0].size()-1].first = good_CL/converted_sentenceSet.size();
+	training_prob2[converted_sentenceSet[0].size()-1].second = bad_CL/converted_sentenceSet.size();
+	// counting is fine-----
 	// count vocabulary = 1 and cl = 1 or vocabulary = 0 and cl = 0.
 	// no need to check converted_sentenceSet[][converted_sentenceSet[].size()-1]
 
 	for(int i = 0; i < converted_sentenceSet[0].size()-1; ++i){
 		float good_pair = 0., bad_pair = 0.;
+		float good_bad = 0., bad_good = 0.;
 		// want to see converted_sentenceSet[j][i]
 		for(int j = 0; j < converted_sentenceSet.size(); ++j){
 			/*case of the CL*/
@@ -295,18 +302,25 @@ void classification_training(vector<vector<string>> &converted_sentenceSet, vect
 				++good_pair;
 			}else if(converted_sentenceSet[j][i].compare("0")==0 and converted_sentenceSet[j][(converted_sentenceSet[0].size()-1)].compare("0") == 0){
 				++bad_pair;
+			}else if(converted_sentenceSet[j][i].compare("1")==0 and converted_sentenceSet[j][(converted_sentenceSet[0].size()-1)].compare("0") == 0){
+				++good_bad;
+			}else if(converted_sentenceSet[j][i].compare("0")==0 and converted_sentenceSet[j][(converted_sentenceSet[0].size()-1)].compare("1") == 0){
+				++bad_good;
 			}
 
 		}
-		cout << good_pair << ' ' << bad_pair <<endl;
+		//cout << good_pair << ' ' << bad_pair <<endl;
 		training_prob[i].first = (float)(good_pair+1)/(float)(good_CL+2);
 		training_prob[i].second = (float)(bad_pair+1)/(float)(bad_CL+2);
+
+		training_prob2[i].first = (float)(good_bad+1)/(float)(good_CL+2);
+		training_prob2[i].second = (float)(bad_good+1)/(float)(bad_CL+2);
 	}
 	//cout <<converted_sentenceSet[0].size();
 	/*
 	cout << good_CL << ' ' << bad_CL << endl;
 	for(int i = 0; i < training_prob.size(); ++i){
-		cout << training_prob[i].first << ' ' << float(1-training_prob[i].second) << endl;
+		cout << (1-training_prob[i].first)+training_prob2[i].first << ' ' << (1-training_prob[i].second)+training_prob2[i].second << endl;
 	}*/
 
 }
@@ -316,7 +330,7 @@ void classification_training(vector<vector<string>> &converted_sentenceSet, vect
 	- for v=0, log( P(CL=0) + sum_words( log( 1 - P(X=1,CL=0) ) + log( P(X=1,CL=0) )
 ********************************/
 
-float classification_testing(vector<vector<string>> &converted_sentenceSet,  vector<pair<float,float>> &training_prob)
+float classification_testing(vector<vector<string>> &converted_sentenceSet,  vector<pair<float,float>> &training_prob, vector<pair<float,float>> &training_prob2)
 {
 	// chech each words to predict -> count it
 	int correct = 0;
@@ -343,7 +357,7 @@ float classification_testing(vector<vector<string>> &converted_sentenceSet,  vec
 		}
 		predict_good+= log10(training_prob[converted_sentenceSet[0].size()-1].first);
 		predict_bad+= log10(training_prob[converted_sentenceSet[0].size()-1].second);
-		cout << predict_good << ' ' << predict_bad;
+		//cout << predict_good << ' ' << predict_bad;
 		if(predict_good > predict_bad){
 			if(converted_sentenceSet[i][converted_sentenceSet[0].size()-1] == "1"){
 				correct++;
@@ -354,8 +368,8 @@ float classification_testing(vector<vector<string>> &converted_sentenceSet,  vec
 			}
 		}
 	}
-	cout << correct << ' ' << converted_sentenceSet.size()<<endl;
+	//cout << correct << ' ' << converted_sentenceSet.size()<<endl;
 	float result = (float)correct/(float)converted_sentenceSet.size();
-	cout << result ;
+	//cout << result ;
 	return result;
 }
