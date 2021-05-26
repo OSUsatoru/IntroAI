@@ -354,7 +354,7 @@ float classification_testing(vector<vector<string>> &converted_sentenceSet,  vec
 			}
 		}
 	}
-	cout << correct << ' ' << converted_sentenceSet.size();
+	cout << correct << ' ' << converted_sentenceSet.size()<<endl;
 	float result = (float)correct/(float)converted_sentenceSet.size();
 	cout << result ;
 	return result;
