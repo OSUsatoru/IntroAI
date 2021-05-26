@@ -1,0 +1,2 @@
+acuarate trainingSet: 0.490982
+acuarate testSet: 0.50503

@@ -40,8 +40,8 @@ void readFile(char *in_file, vector<sentence> &v );
 void proper_word(vector<string> &text);
 void create_vocabulary(vector<sentence> &trainingSet, vector<string> &vocabulary);
 void convert_process(char *out_file, vector<sentence> &sentenceSet, vector<string> &vocabulary, vector<vector<string>> &converted_sentenceSet);
-void classification();
-
+void classification_training(vector<vector<string>> &converted_sentenceSet, vector<pair<float,float>> &training_prob);
+float classification_testing(vector<vector<string>> &converted_sentenceSet,  vector<pair<float,float>> &training_prob);
 /*
 	argv[1] is the
 ***********************************/
@@ -67,18 +67,25 @@ int main(int argc, char *argv[])
 	convert_process(test_out,testSet,vocabrary,converted_testSet);
 	convert_process(training_out,trainingSet,vocabrary,converted_trainingSet);
 
+	vector<pair<float,float>> first_training(vocabrary.size(), pair<float,float>(0.0,0.0));
+	//cout << vocabrary.size();
+	classification_training(converted_trainingSet, first_training);
+	float accurate_first, accurate_second;
+	accurate_first = classification_testing(converted_trainingSet, first_training);
+	accurate_second = classification_testing(converted_testSet, first_training);
 
-	//cout << "\n== After readFile() ==" << endl;
-	/*
-	for (const sentence &itr : trainingSet)
-	{
-		//cout << "Text: " << itr.text << " | ClassLabel: " << itr.classLabel << endl;
-		for(auto &itr2: itr.text){
-			cout << itr2 << '|';
-		}
-		cout << itr.classLabel << endl;
-	}
-	*/
+
+		/* print  */
+	ofstream ofs("result.txt");
+	if (!ofs) {
+        cerr << "Could not open output file.\n" << endl;
+        exit(1);
+    }
+	ofs << "acuarate trainingSet: " << accurate_first << '\n';
+	ofs << "acuarate testSet: " << accurate_second;
+
+
+	ofs.close();
 	return 0;
 }
 /* http://vivi.dyndns.org/tech/cpp/string.html#swap */
@@ -251,5 +258,104 @@ void convert_process(char *out_file, vector<sentence> &sentenceSet, vector<strin
 
 	ofs.close();
 }
+/***
+ 1. need to create (pair of floating numbers) for each words (training)
+- (x=1 given CL=1) and (x=0 given CL = 0)
+- for CL, pair value is P(CL=1) and P(CL=0)
+- vector<pair<float,float>> trained_text(vocabulary.size());
+- for each vocabulary, ((#of x=1 and CL=1)+1) / ((# of CL=1)+2)
+- and ((#of x=0 and CL=0)+1) / ((# of CL=0)+2)
 
-void classification();
+
+ ******************************************/
+void classification_training(vector<vector<string>> &converted_sentenceSet, vector<pair<float,float>> &training_prob)
+{
+	// converted_sentenceSet[0].size() is number of words
+	//  converted_sentenceSet.size() is number of sentences
+	float good_CL = 0., bad_CL = 0.;
+	for(int i = 0; i < converted_sentenceSet.size(); ++i){
+		if(converted_sentenceSet[i][converted_sentenceSet[i].size()-1] == "1"){
+			++good_CL;
+		}else{
+			++bad_CL;
+		}
+	}
+	training_prob[converted_sentenceSet[0].size()-1].first = good_CL/converted_sentenceSet.size();
+	training_prob[converted_sentenceSet[0].size()-1].second = bad_CL/converted_sentenceSet.size();
+	// count vocabulary = 1 and cl = 1 or vocabulary = 0 and cl = 0.
+	// no need to check converted_sentenceSet[][converted_sentenceSet[].size()-1]
+
+	for(int i = 0; i < converted_sentenceSet[0].size()-1; ++i){
+		float good_pair = 0., bad_pair = 0.;
+		// want to see converted_sentenceSet[j][i]
+		for(int j = 0; j < converted_sentenceSet.size(); ++j){
+			/*case of the CL*/
+
+			if(converted_sentenceSet[j][i].compare("1")==0 and converted_sentenceSet[j][(converted_sentenceSet[0].size()-1)].compare("1")==0){
+				++good_pair;
+			}else if(converted_sentenceSet[j][i].compare("0")==0 and converted_sentenceSet[j][(converted_sentenceSet[0].size()-1)].compare("0") == 0){
+				++bad_pair;
+			}
+
+		}
+		cout << good_pair << ' ' << bad_pair <<endl;
+		training_prob[i].first = (float)(good_pair+1)/(float)(good_CL+2);
+		training_prob[i].second = (float)(bad_pair+1)/(float)(bad_CL+2);
+	}
+	//cout <<converted_sentenceSet[0].size();
+	/*
+	cout << good_CL << ' ' << bad_CL << endl;
+	for(int i = 0; i < training_prob.size(); ++i){
+		cout << training_prob[i].first << ' ' << float(1-training_prob[i].second) << endl;
+	}*/
+
+}
+/*
+	2. calculate max prob (testing)
+	- for v=1, log( P(CL=1) + sum_words( log(P(X=1,CL=1) + log( 1 - P(X=1,CL=1) )
+	- for v=0, log( P(CL=0) + sum_words( log( 1 - P(X=1,CL=0) ) + log( P(X=1,CL=0) )
+********************************/
+
+float classification_testing(vector<vector<string>> &converted_sentenceSet,  vector<pair<float,float>> &training_prob)
+{
+	// chech each words to predict -> count it
+	int correct = 0;
+	float predict_good = 0., predict_bad = 0.;
+	//loop all of statement (need to see each CL)
+	for(int i=0; i < converted_sentenceSet.size(); ++i){
+
+		// loop all vocab
+		for(int j=0; j < converted_sentenceSet[0].size()-1; ++j){
+
+			if(converted_sentenceSet[i][j].compare("1") == 0){
+				predict_good += log10(training_prob[j].first);
+				predict_bad += log10(training_prob[j].second);
+			}else{
+				predict_good += log10(1-training_prob[j].first);
+				predict_bad += log10(1-training_prob[j].second);
+			}
+			/*
+			predict_good += log10(training_prob[j].first);
+			predict_bad += log10(training_prob[j].second);
+			predict_good += log10(1-training_prob[j].first);
+			predict_bad += log10(1-training_prob[j].second);
+			*/
+		}
+		predict_good+= log10(training_prob[converted_sentenceSet[0].size()-1].first);
+		predict_bad+= log10(training_prob[converted_sentenceSet[0].size()-1].second);
+		cout << predict_good << ' ' << predict_bad;
+		if(predict_good > predict_bad){
+			if(converted_sentenceSet[i][converted_sentenceSet[0].size()-1] == "1"){
+				correct++;
+			}
+		}else{
+			if(converted_sentenceSet[i][converted_sentenceSet[0].size()-1] == "0"){
+				correct++;
+			}
+		}
+	}
+	cout << correct << ' ' << converted_sentenceSet.size();
+	float result = (float)correct/(float)converted_sentenceSet.size();
+	cout << result ;
+	return result;
+}
