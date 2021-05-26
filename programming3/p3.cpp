@@ -39,7 +39,7 @@ vector<string> split(const string &str, char sep);
 void readFile(char *in_file, vector<sentence> &v );
 void proper_word(vector<string> &text);
 void create_vocabulary(vector<sentence> &trainingSet, vector<string> &vocabulary);
-void convert_process(vector<sentence> &sentenceSet, vector<string> &vocabulary, vector<vector<string>> &converted_sentenceSet);
+void convert_process(char *out_file, vector<sentence> &sentenceSet, vector<string> &vocabulary, vector<vector<string>> &converted_sentenceSet);
 void classification();
 
 /*
@@ -49,6 +49,7 @@ int main(int argc, char *argv[])
 {
 	vector<sentence> testSet, trainingSet;
 	vector<string> vocabrary;
+	vector<vector<string>> converted_testSet, converted_trainingSet;
 
 	char testText[] = "testSet.txt", trainingText[] = "trainingSet.txt";
 	char test_out[] = "preprocessed_test.txt", training_out[]="preprocessed_train.txt";
@@ -58,11 +59,17 @@ int main(int argc, char *argv[])
 	readFile(trainingText, trainingSet);
 	/* Create feature vector */
 	create_vocabulary(trainingSet, vocabrary);
+	/*
 	for(auto &itr: vocabrary){
 		cout << itr << ',';
 	}
-	/*
+	*/
+	convert_process(test_out,testSet,vocabrary,converted_testSet);
+	convert_process(training_out,trainingSet,vocabrary,converted_trainingSet);
+
+
 	//cout << "\n== After readFile() ==" << endl;
+	/*
 	for (const sentence &itr : trainingSet)
 	{
 		//cout << "Text: " << itr.text << " | ClassLabel: " << itr.classLabel << endl;
@@ -191,9 +198,58 @@ void create_vocabulary(vector<sentence> &trainingSet, vector<string> &vocabulary
 /*
 	convert vector of sentence into feature vector
 ************************************/
-void convert_process(vector<sentence> &sentenceSet, vector<string> &vocabulary, vector<vector<string>> &converted_sentenceSet)
+void convert_process(char *out_file, vector<sentence> &sentenceSet, vector<string> &vocabulary, vector<vector<string>> &converted_sentenceSet)
 {
 
+	// check each sentence
+	for(int i = 0; i < sentenceSet.size(); ++i){
+		//edit this and push_back into converted_sentenceSet
+		vector<string> tmp(vocabulary.size(),"0");
+		if(sentenceSet[i].classLabel==1){
+			tmp[vocabulary.size()-1] = "1";
+		}
+		//check each word
+		for(int j = 0; j < sentenceSet[i].text.size(); ++j){
+			//if the word is in the vocabulary
+			for(int k = 0; k < vocabulary.size()-1; ++k){
+				//if find, tmp[k] = "1"
+				if(vocabulary[k].compare(sentenceSet[i].text[j]) == 0){
+					tmp[k] = "1";
+				}
+			}
+		}
+		converted_sentenceSet.push_back(tmp);
+	}
+
+
+	/* print  */
+	ofstream ofs(out_file);
+	if (!ofs) {
+        cerr << "Could not open output file.\n" << endl;
+        exit(1);
+    }
+	/* print the vocabulary */
+	for(int i = 0; i < vocabulary.size(); ++i){
+		ofs << vocabulary[i];
+		if(i!=vocabulary.size()-1){
+			ofs << ',';
+		}else{
+			ofs << '\n';
+		}
+	}
+	for(int i = 0; i < converted_sentenceSet.size(); ++i){
+		for(int j = 0; j < converted_sentenceSet[i].size(); ++j){
+			ofs << converted_sentenceSet[i][j];
+			if(j!=converted_sentenceSet[i].size()-1){
+				ofs << ',';
+			}else if(i!=converted_sentenceSet.size()-1){
+				ofs << '\n';
+			}
+		}
+	}
+
+
+	ofs.close();
 }
 
 void classification();
