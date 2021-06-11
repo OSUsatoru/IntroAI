@@ -302,11 +302,11 @@ void classification_training(vector<vector<string>> &converted_sentenceSet, vect
 				++good_pair;
 			}else if(converted_sentenceSet[j][i].compare("0")==0 and converted_sentenceSet[j][(converted_sentenceSet[0].size()-1)].compare("0") == 0){
 				++bad_pair;
-			}else if(converted_sentenceSet[j][i].compare("1")==0 and converted_sentenceSet[j][(converted_sentenceSet[0].size()-1)].compare("0") == 0){
+			}/*lse if(converted_sentenceSet[j][i].compare("1")==0 and converted_sentenceSet[j][(converted_sentenceSet[0].size()-1)].compare("0") == 0){
 				++good_bad;
 			}else if(converted_sentenceSet[j][i].compare("0")==0 and converted_sentenceSet[j][(converted_sentenceSet[0].size()-1)].compare("1") == 0){
 				++bad_good;
-			}
+			}*/
 
 		}
 		//cout << good_pair << ' ' << bad_pair <<endl;
@@ -317,11 +317,11 @@ void classification_training(vector<vector<string>> &converted_sentenceSet, vect
 		training_prob2[i].second = (float)(bad_good+1)/(float)(bad_CL+2);
 	}
 	//cout <<converted_sentenceSet[0].size();
-	/*
+
 	cout << good_CL << ' ' << bad_CL << endl;
 	for(int i = 0; i < training_prob.size(); ++i){
-		cout << (1-training_prob[i].first)+training_prob2[i].first << ' ' << (1-training_prob[i].second)+training_prob2[i].second << endl;
-	}*/
+		cout << training_prob[i].first << ' ' << training_prob[i].second << endl;
+	}
 
 }
 /*
@@ -340,13 +340,13 @@ float classification_testing(vector<vector<string>> &converted_sentenceSet,  vec
 
 		// loop all vocab
 		for(int j=0; j < converted_sentenceSet[0].size()-1; ++j){
-
+			//cout << training_prob[j].first;
 			if(converted_sentenceSet[i][j].compare("1") == 0){
-				predict_good += log10(training_prob[j].first);
-				predict_bad += log10(training_prob[j].second);
+				predict_good += log10f(training_prob[j].first);
+				predict_bad += log10f(1-training_prob[j].second);
 			}else{
-				predict_good += log10(1-training_prob[j].first);
-				predict_bad += log10(1-training_prob[j].second);
+				predict_good += log10f(1-training_prob[j].first);
+				predict_bad += log10f(training_prob[j].second);
 			}
 			/*
 			predict_good += log10(training_prob[j].first);
@@ -355,8 +355,8 @@ float classification_testing(vector<vector<string>> &converted_sentenceSet,  vec
 			predict_bad += log10(1-training_prob[j].second);
 			*/
 		}
-		predict_good+= log10(training_prob[converted_sentenceSet[0].size()-1].first);
-		predict_bad+= log10(training_prob[converted_sentenceSet[0].size()-1].second);
+		predict_good+= log10f(training_prob[converted_sentenceSet[0].size()-1].first);
+		predict_bad+= log10f(training_prob[converted_sentenceSet[0].size()-1].second);
 		//cout << predict_good << ' ' << predict_bad;
 		if(predict_good > predict_bad){
 			if(converted_sentenceSet[i][converted_sentenceSet[0].size()-1] == "1"){
