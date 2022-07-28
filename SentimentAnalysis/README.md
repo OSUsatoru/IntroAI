@@ -14,8 +14,3 @@ g++ --std=c++11 p3.cpp -o p3
 ```sh
 .\p3.exe  > check.txt
 ```
-## sample output
-```sh
-
-
-```
